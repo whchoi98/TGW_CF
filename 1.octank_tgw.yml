@@ -22,12 +22,41 @@ Parameters:
     Default: "ap-northeast-2"
 
 Mappings:
-  # AMI for Cisco CSR1kv
   RegionMap:
+    'eu-north-1':
+      AMI: "ami-3f36be41"
+    'ap-south-1':
+      AMI: "ami-0d2692b6acea72ee6"
+    'eu-west-3':
+      AMI: "ami-0adcddd3324248c4c"
+    'eu-west-2':
+      AMI: "ami-0d8e27447ec2c8410"
+    'eu-west-1':
+      AMI: "ami-0bbc25e23a7640b9b"
+    'ap-northeast-3':
+      AMI: "ami-0ee933a7f81beb045"
     'ap-northeast-2':
-      AMI: "ami-0e956abc893b8fdc2"
+      AMI: "ami-095ca789e0549777d"
+    'ap-northeast-1':
+      AMI: "ami-0c3fd0f5d33134a76"
+    'sa-east-1':
+      AMI: "ami-058943e7d9b9cabfb"
+    'ca-central-1':
+      AMI: "ami-0d4ae09ec9361d8ac"
+    'ap-southeast-1':
+      AMI: "ami-01f7527546b557442"
+    'ap-southeast-2':
+      AMI: "ami-0dc96254d5535925f"
+    'eu-central-1':
+      AMI: "ami-0cc293023f983ed53"
     'us-east-1':
-      AMI: "ami-0f3e1df627cfd0fbe"
+      AMI: "ami-0b898040803850657"
+    'us-east-2':
+      AMI: "ami-0d8f6eb4f641ef691"
+    'us-west-1':
+      AMI: "ami-056ee704806822732"
+    'us-west-2':
+      AMI: "ami-082b5a644766e0e6f"
 
 Resources:
   # Non-Prod 1 Resources
