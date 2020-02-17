@@ -1,0 +1,417 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "This is the data center automation configuration of the OCTANK virtual company.5 VPCs, 2AZs, 10.0.0.0/8"
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "VPC Parameters"
+        Parameters:
+          - AvailabilityZoneA
+          - AvailabilityZoneB
+
+# AZ Parameters
+
+Parameters:
+  AvailabilityZoneA:
+    Description: "Choose AZ1 for your VPC."
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+  AvailabilityZoneB:
+    Description: "Choose AZ1 for your VPC."
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+
+# ec2 images
+
+Mappings:
+  RegionMap:
+    'ap-northeast-2':
+      AMI: "ami-0e956abc893b8fdc2"
+    'us-east-1':
+      AMI: "ami-09bf161a067c3055c"
+
+# DOCTANK Resources
+
+Resources:
+
+# Create VPCDOCTANK
+
+  VPCDOCTANK:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.4.0.0/16"
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: DOCTANK
+        - Key: project
+          Value: OCTANK
+
+# Create VPCDOCTANK-PublicSubnet A
+
+  PublicSubnetADOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCDOCTANK
+      CidrBlock: "10.4.0.0/22"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: DOCTANK-Pub-A Subnet
+
+# Create VPCDOCTANK-PublicSubnet B
+
+  PublicSubnetBDOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPCDOCTANK
+      CidrBlock: "10.4.4.0/22"
+      AvailabilityZone:
+        Ref: AvailabilityZoneB
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: DOCTANK-Pub-B Subnet
+
+# Create VPCDOCTANK-Public Route Table
+
+  PublicSubnetRouteTableDOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCDOCTANK
+      Tags:
+        - Key: Name
+          Value: DOCTANK-Public RT
+
+# Public A Subnet Accsociate VPCDOCTANK-Public Route Table
+
+  PublicASubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTableDOCTANK
+      SubnetId: !Ref PublicSubnetADOCTANK
+
+# Public B Subnet Accsociate VPCDOCTANK-Public Route Table
+
+  PublicBSubnetRouteTableAssociationDOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTableDOCTANK
+      SubnetId: !Ref PublicSubnetBDOCTANK
+
+# Create VPCDOCTANK-PrivateSubnet A
+
+  PrivateSubnetADOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCDOCTANK
+      CidrBlock: "10.4.8.0/21"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: DOCTANK-Priv-A Subnet
+
+# Create VPCDOCTANK-PrivateSubnet B
+
+  PrivateSubnetBDOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCDOCTANK
+      CidrBlock: "10.4.16.0/21"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: DOCTANK-Priv-B Subnet
+
+# Create VPCDOCTANK-Private Route Table
+
+  PrivateSubnetRouteTableDOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCDOCTANK
+      Tags:
+        - Key: Name
+          Value: DOCTANK-Private RT
+
+# Private A Subnet Accsociate VPC-DOCTANK-Private Route Table
+
+  PrivateASubnetRouteTableAssociationDOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTableDOCTANK
+      SubnetId: !Ref PrivateSubnetADOCTANK
+
+# Private B Subnet Accsociate VPC-DOCTANK-Private Route Table
+
+  PrivateBSubnetRouteTableAssociationDOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTableDOCTANK
+      SubnetId: !Ref PrivateSubnetBDOCTANK
+
+# VPC DOCTANK ServerRole
+
+  ServerRoleDOCTANK:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: DOCTANK-SSMRole
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  InstanceProfileDOCTANK:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref ServerRoleDOCTANK
+
+# VPCDOCTANK Security Group - ICMP , SSH Permit 
+
+  DOCTANKEc2SecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
+      GroupName: DOCTANK-SG
+      VpcId: !Ref VPCDOCTANK
+      SecurityGroupIngress:
+        - IpProtocol: icmp
+          CidrIp: 10.0.0.0/8
+          FromPort: "-1"
+          ToPort: "-1"
+        - IpProtocol: tcp
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: 10.4.0.0/16
+      Tags:
+        - Key: Name
+          Value: DOCTANK-SG
+
+# VPCDOCTANK EC2 Create
+
+  ServerAEc2DOCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateSubnetADOCTANK
+    Properties:
+      SubnetId: !Ref PrivateSubnetADOCTANK
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      InstanceType: t3.small
+      PrivateIpAddress: 10.4.8.100
+      SecurityGroupIds:
+        - Ref: DOCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileDOCTANK
+      Tags:
+        - Key: Name
+          Value: DOCTANK-Server-A
+
+  ServerBEc2DOCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateSubnetBDOCTANK
+    Properties:
+      SubnetId: !Ref PrivateSubnetBDOCTANK
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      InstanceType: t3.small
+      PrivateIpAddress: 10.4.16.100
+      SecurityGroupIds:
+        - Ref: DOCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileDOCTANK
+      Tags:
+        - Key: Name
+          Value: DOCTANK-Server-B
+
+  AttachSubnetADOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCDOCTANK
+      CidrBlock: "10.4.24.0/24"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: DOCTANK-Attach-A Subnet
+
+  AttachSubnetBDOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCDOCTANK
+      CidrBlock: "10.4.25.0/24"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: DOCTANK-Attach-B Subnet
+
+  AttachSubnetRouteTableDOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCDOCTANK
+      Tags:
+        - Key: Name
+          Value: DOCTANK-Attach RT
+
+  AttachASubnetRouteTableAssociationDOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref AttachSubnetRouteTableDOCTANK
+      SubnetId: !Ref AttachSubnetADOCTANK
+
+  AttachBSubnetRouteTableAssociationDOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref AttachSubnetRouteTableDOCTANK
+      SubnetId: !Ref AttachSubnetBDOCTANK
+
+  EndpointSecGroupDOCTANK:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open-up ports for local VPC
+      GroupName: DOCTANK-EP-SG
+      VpcId: !Ref VPCDOCTANK
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "0"
+          ToPort: "65535"
+          CidrIp: 10.4.0.0/16
+        - IpProtocol: udp
+          FromPort: "0"
+          ToPort: "65535"
+          CidrIp: 10.4.0.0/16
+      Tags:
+        - Key: Name
+          Value: DOCTANK-EP-SG
+
+  SSMEndpointDOCTANK:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPCDOCTANK
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SubnetIds:
+        - Ref: AttachSubnetADOCTANK
+        - Ref: AttachSubnetBDOCTANK
+      SecurityGroupIds:
+        - Ref: EndpointSecGroupDOCTANK
+
+  SSMMEndpointDOCTANK:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPCDOCTANK
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SubnetIds:
+        - Ref: AttachSubnetADOCTANK
+        - Ref: AttachSubnetBDOCTANK
+      SecurityGroupIds:
+        - Ref: EndpointSecGroupDOCTANK
+
+  InternetGatewayDOCTANK:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: DOCTANK-IGW
+
+  AttachGatewayDOCTANK:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPCDOCTANK
+      InternetGatewayId: !Ref InternetGatewayDOCTANK
+
+  DirectInternetRouteDOCTANK:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayDOCTANK
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGatewayDOCTANK
+      RouteTableId: !Ref PublicSubnetRouteTableDOCTANK
+
+Outputs:
+  # DOCTANK Outputs
+  VPCDOCTANK:
+    Description: "The Created VPC"
+    Value: !Ref VPCDOCTANK
+    Export:
+      Name: DOCTANK-VPC
+
+  AttachSubnetADOCTANK:
+    Description: "DOCTANK Attach Subnet A"
+    Value: !Ref AttachSubnetADOCTANK
+    Export:
+      Name: DOCTANK-AttachSubnetA
+  AttachSubnetBDOCTANK:
+    Description: "DOCTANK Attach Subnet B"
+    Value: !Ref AttachSubnetBDOCTANK
+    Export:
+      Name: DOCTANK-AttachSubnetB
+
+  PublicSubnetADOCTANK:
+    Description: "DOCTANK Public Subnet A"
+    Value: !Ref PublicSubnetADOCTANK
+    Export:
+      Name: DOCTANK-PublicSubnetA
+  PublicSubnetBDOCTANK:
+    Description: "DOCTANK Public Subnet B"
+    Value: !Ref PublicSubnetBDOCTANK
+    Export:
+      Name: DOCTANK-PublicSubnetB
+
+  PrivateSubnetADOCTANK:
+    Description: "DOCTANK Private Subnet A"
+    Value: !Ref PrivateSubnetADOCTANK
+    Export:
+      Name: DOCTANK-PrivateSubnetA
+  PrivateSubnetBDOCTANK:
+    Description: "DOCTANK Private Subnet B"
+    Value: !Ref PrivateSubnetBDOCTANK
+    Export:
+      Name: DOCTANK-PrivateSubnetB
+
+  PrivateSubnetRouteTableDOCTANK:
+    Description: "DOCTANK Private Route Table"
+    Value: !Ref PrivateSubnetRouteTableDOCTANK
+    Export:
+      Name: DOCTANK-Private-Route-Table
+
+  PublicSubnetRouteTableDOCTANK:
+    Description: "DOCTANK Public Route Table"
+    Value: !Ref PublicSubnetRouteTableDOCTANK
+    Export:
+      Name: DOCTANK-Public-Route-Table  
+
+  DOCTANKServerSession:
+    Description: session command for Server
+    Value:
+      Fn::Join:
+        - " "
+        - - "aws ssm start-session --target"
+          - !Ref ServerAEc2DOCTANK
+
+  ServerADOCTANK:
+    Description: "BOCTANK A EC2 IP address"
+    Value: !GetAtt ServerAEc2DOCTANK.PrivateIp
+    Export:
+      Name: DOCTANK-ServerAIP
+
+  ServerBDOCTANK:
+    Description: "BOCTANK B EC2 IP address"
+    Value: !GetAtt ServerBEc2DOCTANK.PrivateIp
+    Export:
+      Name: DOCTANK-ServerBIP

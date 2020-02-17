@@ -1,0 +1,204 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Add Transit Gateway and Datacenter Router"
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "VPC Parameters"
+        Parameters:
+          - AvailabilityZoneA
+          - AvailabilityZoneB
+
+Resources:
+  # Create OCTANK Transit Gateway
+  TransitGateway:
+    Type: "AWS::EC2::TransitGateway"
+    Properties:
+      AmazonSideAsn: 65000
+      Description: "TGW Route Integration Test"
+      AutoAcceptSharedAttachments: "enable"
+      DefaultRouteTableAssociation: "disable"
+      DnsSupport: "enable"
+      VpnEcmpSupport: "enable"
+      Tags:
+        - Key: Name
+          Value: OCTANK-TGW
+
+  # OCTANK Transit Gateway Route Table Creation
+
+  RTGreen:
+    Type: "AWS::EC2::TransitGatewayRouteTable"
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Green Route Table
+      TransitGatewayId: !Ref TransitGateway
+
+  RTRed:
+    Type: "AWS::EC2::TransitGatewayRouteTable"
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Red Route Table
+      TransitGatewayId: !Ref TransitGateway
+
+  RTBlue:
+    Type: "AWS::EC2::TransitGatewayRouteTable"
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Blue Route Table
+      TransitGatewayId: !Ref TransitGateway
+
+  # AOCTANK Connect to the Transit Gateway
+
+  AttachAOCTANK:
+    Type: "AWS::EC2::TransitGatewayAttachment"
+    Properties:
+      SubnetIds:
+        - Fn::ImportValue: !Sub "AOCTANK-AttachSubnetA"
+        - Fn::ImportValue: !Sub "AOCTANK-AttachSubnetB"
+      Tags:
+        - Key: Name
+          Value: AOCTANKAttach
+      TransitGatewayId: !Ref TransitGateway
+      VpcId:
+        Fn::ImportValue: !Sub "AOCTANK-VPC"
+
+  AssociateAOCTANKRouteTable:
+    Type: "AWS::EC2::TransitGatewayRouteTableAssociation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachAOCTANK
+      TransitGatewayRouteTableId: !Ref RTRed
+
+  PropagateAOCTANKRed:
+    Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachAOCTANK
+      TransitGatewayRouteTableId: !Ref RTRed
+
+  PropagateAOCTANKGreen:
+    Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachAOCTANK
+      TransitGatewayRouteTableId: !Ref RTGreen
+
+  # BOCTANK Connect to the Transit Gateway
+
+  AttachBOCTANK:
+    Type: "AWS::EC2::TransitGatewayAttachment"
+    Properties:
+      SubnetIds:
+        - Fn::ImportValue: !Sub "BOCTANK-AttachSubnetA"
+        - Fn::ImportValue: !Sub "BOCTANK-AttachSubnetB"
+      Tags:
+        - Key: Name
+          Value: BOCTANKAttach
+      TransitGatewayId: !Ref TransitGateway
+      VpcId:
+        Fn::ImportValue: !Sub "BOCTANK-VPC"
+
+  AssociateBOCTANKRouteTable:
+    Type: "AWS::EC2::TransitGatewayRouteTableAssociation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachBOCTANK
+      TransitGatewayRouteTableId: !Ref RTRed
+
+  PropagateBOCTANKRed:
+    Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachBOCTANK
+      TransitGatewayRouteTableId: !Ref RTRed
+
+  PropagateBOCTANKGreen:
+    Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachBOCTANK
+      TransitGatewayRouteTableId: !Ref RTGreen
+
+  # COCTANK Connect to the Transit Gateway
+
+  AttachCOCTANK:
+    Type: "AWS::EC2::TransitGatewayAttachment"
+    Properties:
+      SubnetIds:
+        - Fn::ImportValue: !Sub "COCTANK-AttachSubnetA"
+        - Fn::ImportValue: !Sub "COCTANK-AttachSubnetB"
+      Tags:
+        - Key: Name
+          Value: COCTANKAttach
+      TransitGatewayId: !Ref TransitGateway
+      VpcId:
+        Fn::ImportValue: !Sub "COCTANK-VPC"
+
+  AssociateCOCTANKRouteTable:
+    Type: "AWS::EC2::TransitGatewayRouteTableAssociation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachCOCTANK
+      TransitGatewayRouteTableId: !Ref RTBlue
+
+  PropagateCOCTANKBlue:
+    Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachCOCTANK
+      TransitGatewayRouteTableId: !Ref RTBlue
+
+  PropagateCOCTANKGreen:
+    Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachCOCTANK
+      TransitGatewayRouteTableId: !Ref RTGreen
+
+  # ITOCTANK Connect to the Transit Gateway
+  AttachITOCTANK:
+    Type: "AWS::EC2::TransitGatewayAttachment"
+    Properties:
+      SubnetIds:
+        - Fn::ImportValue: !Sub "ITOCTANK-AttachSubnetA"
+        - Fn::ImportValue: !Sub "ITOCTANK-AttachSubnetB"
+      Tags:
+        - Key: Name
+          Value: ITOCTANKAttach
+      TransitGatewayId: !Ref TransitGateway
+      VpcId:
+        Fn::ImportValue: !Sub "ITOCTANK-VPC"
+
+  AssociateITOCTANKRouteTable:
+    Type: "AWS::EC2::TransitGatewayRouteTableAssociation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachITOCTANK
+      TransitGatewayRouteTableId: !Ref RTGreen
+
+  PropagateITOCTANKRed:
+    Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachITOCTANK
+      TransitGatewayRouteTableId: !Ref RTRed
+
+  PropagateITOCTANKBlue:
+    Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachITOCTANK
+      TransitGatewayRouteTableId: !Ref RTBlue
+
+  PropagateITOCTANKGreen:
+    Type: "AWS::EC2::TransitGatewayRouteTablePropagation"
+    Properties:
+      TransitGatewayAttachmentId: !Ref AttachITOCTANK
+      TransitGatewayRouteTableId: !Ref RTGreen
+
+  DefaultRouteRed:
+    Type: "AWS::EC2::TransitGatewayRoute"
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      TransitGatewayAttachmentId: !Ref AttachITOCTANK
+      TransitGatewayRouteTableId: !Ref RTRed
+
+  DefaultRouteBlue:
+    Type: "AWS::EC2::TransitGatewayRoute"
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      TransitGatewayAttachmentId: !Ref AttachITOCTANK
+      TransitGatewayRouteTableId: !Ref RTBlue
+
