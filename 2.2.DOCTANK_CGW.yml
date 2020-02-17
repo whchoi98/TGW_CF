@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Add Transit Gateway and Datacenter Router"
+Description: "CGW Config for Cisco CSR"
 
 Metadata:
   "AWS::CloudFormation::Interface":

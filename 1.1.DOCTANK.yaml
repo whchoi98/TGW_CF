@@ -343,6 +343,19 @@ Resources:
       GatewayId: !Ref InternetGatewayDOCTANK
       RouteTableId: !Ref PublicSubnetRouteTableDOCTANK
 
+  DCCloud9env:
+    Type: AWS::Cloud9::EnvironmentEC2
+    Properties:
+      Description: "Cloud9 environment for the running automation"
+      AutomaticStopTimeMinutes: 60
+      InstanceType: t2.large
+      Name: "OCTANK"
+      SubnetIds: !Ref 
+        - Fn::ImportValue: !Sub "PublicSubnetADOCTANK"
+      Repositories:
+        - PathComponent: /TGW_CF
+        - Repogitory: https://github.com/whchoi98/TGW_CF
+        
 Outputs:
   # DOCTANK Outputs
   VPCDOCTANK:
