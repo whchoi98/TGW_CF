@@ -1,0 +1,403 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "This is the data center automation configuration of the OCTANK virtual company.5 VPCs, 2AZs, 10.18.0.0/16"
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "VPC Parameters"
+        Parameters:
+          - AvailabilityZoneA
+          - AvailabilityZoneB
+
+# AZ Parameters
+
+Parameters:
+  AvailabilityZoneA:
+    Description: "Choose AZ1 for your VPC."
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+  AvailabilityZoneB:
+    Description: "Choose AZ2 for your VPC."
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+
+# ec2 images
+
+Mappings:
+  RegionMap:
+    'ap-northeast-2':
+      AMI: "ami-07b13b6d061bf02b9"
+      SSM: "com.amazonaws.ap-northeast-2.ssm"
+      SSMM: "com.amazonaws.ap-northeast-2.ssmmessages"
+    'ap-northeast-1':
+      AMI: "ami-0a5e47e64180a50e4"
+      SSM: "com.amazonaws.ap-northeast-1.ssm"
+      SSMM: "com.amazonaws.ap-northeast-1.ssmmessages"
+    'us-east-1':
+      AMI: "ami-0ba97d2d221b828c8"
+      SSM: "com.amazonaws.us-east-1.ssm"
+      SSMM: "com.amazonaws.us-east-1.ssmmessages"
+    'eu-central-1':
+      AMI: "ami-08d3c6a9cdeb186b0"
+      SSM: "com.amazonaws.eu-central-1.ssm"
+      SSMM: "com.amazonaws.eu-central-1.ssmmessages"
+
+# ZOCTANK Resources
+
+Resources:
+  VPCZOCTANK:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.18.0.0/16"
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: ZOCTANK
+        - Key: project
+          Value: OCTANK
+
+# Create VPCZOCTANK
+
+  VPCZOCTANK:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.18.0.0/16"
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: ZOCTANK
+        - Key: project
+          Value: OCTANK
+
+# Create VPCZOCTANK-PublicSubnet A
+
+  PublicSubnetAZOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      CidrBlock: "10.18.0.0/22"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-Pub-A Subnet
+
+# Create VPCZOCTANK-PublicSubnet B
+
+  PublicSubnetBZOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      CidrBlock: "10.18.4.0/22"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-Pub-B Subnet
+
+# Create VPCZOCTANK-Public Route Table
+
+  PublicSubnetRouteTableZOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-Public RT
+
+# Public A Subnet Accsociate VPCZOCTANK-Public Route Table
+
+  PublicASubnetRouteTableAssociationZOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTableZOCTANK
+      SubnetId: !Ref PublicSubnetAZOCTANK
+
+# Public B Subnet Accsociate VPCZOCTANK-Public Route Table
+
+  PublicBSubnetRouteTableAssociationZOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTableZOCTANK
+      SubnetId: !Ref PublicSubnetBZOCTANK
+
+# Create VPCZOCTANK-PrivateSubnet A
+
+  PrivateSubnetAZOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      CidrBlock: "10.18.8.0/21"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-Priv-A Subnet
+
+# Create VPCZOCTANK-PrivateSubnet B
+
+  PrivateSubnetBZOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      CidrBlock: "10.18.16.0/21"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-Priv-B Subnet
+
+# Create VPCZOCTANK-Private Route Table
+
+  PrivateSubnetRouteTableZOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-Private RT
+
+# Private A Subnet Accsociate VPC-ZOCTANK-Private Route Table
+
+  PrivateASubnetRouteTableAssociationZOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTableZOCTANK
+      SubnetId: !Ref PrivateSubnetAZOCTANK
+
+# Private B Subnet Accsociate VPCZOCTANK-Private Route Table
+
+  PrivateBSubnetRouteTableAssociationZOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTableZOCTANK
+      SubnetId: !Ref PrivateSubnetBZOCTANK
+
+# VPC ZOCTANK ServerRole
+
+  ServerRoleZOCTANK:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ZOCTANK-SSMRole
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  InstanceProfileZOCTANK:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles: 
+        - !Ref ServerRoleZOCTANK
+
+# VPCZOCTANK Security Group - ICMP , SSH Permit 
+
+  ZOCTANKEc2SecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
+      GroupName: ZOCTANK-SG
+      VpcId: !Ref VPCZOCTANK
+      SecurityGroupIngress:
+        - IpProtocol: icmp
+          CidrIp: 10.0.0.0/8
+          FromPort: "-1"
+          ToPort: "-1"
+        - IpProtocol: tcp
+          CidrIp: 10.4.0.0/16
+          FromPort: "22"
+          ToPort: "22"
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-SG
+          
+# VPCZOCTANK EC2 Create
+
+  ServerAEc2ZOCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateSubnetAZOCTANK
+    Properties:
+      SubnetId: !Ref PrivateSubnetAZOCTANK
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      PrivateIpAddress: 10.18.14.100
+      InstanceType: t3.small
+      SecurityGroupIds: 
+        - Ref: ZOCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileZOCTANK
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-Server-A
+  
+  ServerBEc2ZOCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateSubnetBZOCTANK
+    Properties:
+      SubnetId: !Ref PrivateSubnetBZOCTANK
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      PrivateIpAddress: 10.18.22.100
+      InstanceType: t3.small
+      SecurityGroupIds: 
+        - Ref: ZOCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileZOCTANK
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-Server-B
+
+  AttachSubnetAZOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      CidrBlock: "10.18.24.0/24"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-Attach-A Subnet
+
+  AttachSubnetBZOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      CidrBlock: "10.18.25.0/24"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-Attach-B Subnet
+
+  AttachSubnetRouteTableZOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-Attach RT
+
+  AttachASubnetRouteTableAssociationZOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref AttachSubnetRouteTableZOCTANK
+      SubnetId: !Ref AttachSubnetAZOCTANK
+
+  AttachBSubnetRouteTableAssociationZOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref AttachSubnetRouteTableZOCTANK
+      SubnetId: !Ref AttachSubnetBZOCTANK
+
+  EndpointSecGroupZOCTANK:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open-up ports for local VPC
+      GroupName: ZOCTANK-EP-SG
+      VpcId: !Ref VPCZOCTANK
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "1"
+          ToPort: "65535"
+          CidrIp: 10.18.0.0/16
+        - IpProtocol: udp
+          FromPort: "1"
+          ToPort: "65535"
+          CidrIp: 10.18.0.0/16
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-EP-SG
+
+  SSMEndpointZOCTANK:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SubnetIds:
+        - Ref: AttachSubnetAZOCTANK
+        - Ref: AttachSubnetBZOCTANK
+      SecurityGroupIds: 
+        - Ref: EndpointSecGroupZOCTANK
+
+  SSMMEndpointZOCTANK:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SubnetIds:
+        - Ref: AttachSubnetAZOCTANK
+        - Ref: AttachSubnetBZOCTANK
+      SecurityGroupIds: 
+        - Ref: EndpointSecGroupZOCTANK
+
+Outputs:
+  # ZOCTANK Outputs
+  VPCZOCTANK:
+    Description: "The Created VPC"
+    Value: !Ref VPCZOCTANK
+    Export:
+      Name: ZOCTANK-VPC
+
+  AttachSubnetAZOCTANK:
+    Description: "ZOCTANK Attach Subnet A"
+    Value: !Ref AttachSubnetAZOCTANK
+    Export:
+      Name: ZOCTANK-AttachSubnetA
+  AttachSubnetBZOCTANK:
+    Description: "ZOCTANK Attach Subnet B"
+    Value: !Ref AttachSubnetBZOCTANK
+    Export:
+      Name: ZOCTANK-AttachSubnetB
+
+
+  PublicSubnetAZOCTANK:
+    Description: "ZOCTANK Public Subnet A"
+    Value: !Ref PublicSubnetAZOCTANK
+    Export:
+      Name: ZOCTANK-PublicSubnetA
+  PublicSubnetBZOCTANK:
+    Description: "ZOCTANK Public Subnet B"
+    Value: !Ref PublicSubnetBZOCTANK
+    Export:
+      Name: ZOCTANK-PublicSubnetB
+  
+  PrivateSubnetAZOCTANK:
+    Description: "ZOCTANK Private Subnet A"
+    Value: !Ref PrivateSubnetAZOCTANK
+    Export:
+      Name: ZOCTANK-PrivateSubnetA
+  PrivateSubnetBZOCTANK:
+    Description: "ZOCTANK Private Subnet B"
+    Value: !Ref PrivateSubnetBZOCTANK
+    Export:
+      Name: ZOCTANK-PrivateSubnetB 
+  PrivateSubnetRouteTableZOCTANK:
+    Description: "ITOCTANK Private Route Table"
+    Value: !Ref PrivateSubnetRouteTableZOCTANK
+    Export:
+      Name: ZOCTANK-Private-Route-Table
+
+  ServerAZOCTANK:
+    Description: "ZOCTANK EC2 A IP address"
+    Value: !GetAtt ServerAEc2ZOCTANK.PrivateIp
+    Export:
+      Name: ZOCTANK-ServerAIP
+  ServerBZOCTANK:
+    Description: "ZOCTANK EC2 B IP address"
+    Value: !GetAtt ServerBEc2ZOCTANK.PrivateIp
+    Export:
+      Name: ZOCTANK-ServerBIP

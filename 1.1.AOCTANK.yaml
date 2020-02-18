@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "This is the data center automation configuration of the OCTANK virtual company.5 VPCs, 2AZs, 10.0.0.0/8"
+Description: "This is the data center automation configuration of the OCTANK virtual company.5 VPCs, 2AZs, 10.16.0.0/8"
 
 Metadata:
   "AWS::CloudFormation::Interface":
@@ -28,6 +28,8 @@ Mappings:
   RegionMap:
     'ap-northeast-2':
       AMI: "ami-0e956abc893b8fdc2"
+    'ap-northeast-1':
+      AMI: "ami-0f21259d1600d67c7"
     'us-east-1':
       AMI: "ami-09bf161a067c3055c"
 
