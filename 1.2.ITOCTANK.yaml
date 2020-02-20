@@ -83,7 +83,7 @@ Resources:
       VpcId: !Ref VPCITOCTANK
       Tags:
         - Key: Name
-          Value: ITOCTANK-Public-Route-Table
+          Value: ITOCTANK-Public RT
 
 # Public A Subnet Accsociate VPCITOCTANK-Public Route Table
 

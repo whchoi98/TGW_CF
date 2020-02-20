@@ -32,6 +32,10 @@ Mappings:
       AMI: "ami-0f21259d1600d67c7"
     'us-east-1':
       AMI: "ami-09bf161a067c3055c"
+    'eu-central-1'
+      AMI: "ami-00e257fbc328baa25"
+    'eu-west-1'
+      AMI: "ami-07eaa7bc8ad97f43c"
 
 # AOCTANK Resources
 
