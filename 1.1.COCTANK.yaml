@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "This is the data center automation configuration of the OCTANK virtual company.5 VPCs, 2AZs, 10.0.0.0/8"
+Description: "This is the data center automation configuration of the OCTANK virtual company.1 VPCs, 2AZs, 10.8.0.0/16"
 
 Metadata:
   "AWS::CloudFormation::Interface":
@@ -32,14 +32,34 @@ Parameters:
     Type: AWS::EC2::AvailabilityZone::Name
     Default: "ap-northeast-2"
 
-# ec2 images
+# whchoi ec2 images
 
+#Mappings:
+#  RegionMap:
+#    'ap-northeast-2':
+#      AMI: "ami-0e956abc893b8fdc2"
+#    'ap-northeast-1':
+#      AMI: "ami-0f21259d1600d67c7"
+#    'us-east-1':
+#      AMI: "ami-09bf161a067c3055c"
+#    'eu-central-1':
+#      AMI: "ami-00e257fbc328baa25"
+#    'eu-west-1':
+#      AMI: "ami-07eaa7bc8ad97f43c"
+
+# whchoi02 account img
 Mappings:
   RegionMap:
     'ap-northeast-2':
-      AMI: "ami-0e956abc893b8fdc2"
+      AMI: "ami-07eb3b622d65b3282"
+    'ap-northeast-1':
+      AMI: "ami-0d0b31f9a31b06baf"
     'us-east-1':
-      AMI: "ami-09bf161a067c3055c"
+      AMI: "ami-0175605caef730e00"
+    'eu-central-1':
+      AMI: "ami-049bfdd9d1aab5776"
+    'eu-west-1':
+      AMI: "ami-07eaa7bc8ad97f43c"
 
 Resources:
 
@@ -198,7 +218,7 @@ Resources:
       VpcId: !Ref VPCCOCTANK
       SecurityGroupIngress:
         - IpProtocol: icmp
-          CidrIp: 10.0.0.0/8
+          CidrIp: 0.0.0.0/0
           FromPort: "-1"
           ToPort: "-1"
         - IpProtocol: tcp

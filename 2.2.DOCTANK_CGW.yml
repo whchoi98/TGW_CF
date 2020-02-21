@@ -19,7 +19,7 @@ Parameters:
   KeyPair:
     Description: "Keypair to access the CSR"
     Type: "AWS::EC2::KeyPair::KeyName"
-    Default: "octank"
+    Default: "whchoi02"
  
   RouterChoice: 
     Description: Virtual Routers for the Virtual DC CGW
