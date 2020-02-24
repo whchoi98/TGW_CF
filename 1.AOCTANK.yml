@@ -1,0 +1,399 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "This is the data center automation configuration of the AOCTANK virtual company.1 VPCs, 2AZs, 10.11.0.0/16"
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "VPC Parameters"
+        Parameters:ƒ
+          - AvailabilityZoneA
+          - AvailabilityZoneB
+
+# AZ Parameters
+
+Parameters:
+  AvailabilityZoneA:
+    Description: "Choose AZ1 for your VPC."
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+  AvailabilityZoneB:
+    Description: "Choose AZ2 for your VPC."
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+
+# whchoi ec2 images
+
+#Mappings:
+#  RegionMap:
+#    'ap-northeast-2':
+#      AMI: "ami-0e956abc893b8fdc2"
+#    'ap-northeast-1':
+#      AMI: "ami-0f21259d1600d67c7"
+#    'us-east-1':
+#      AMI: "ami-09bf161a067c3055c"
+#    'eu-central-1':
+#      AMI: "ami-00e257fbc328baa25"
+#    'eu-west-1':
+#      AMI: "ami-07eaa7bc8ad97f43c"
+
+# whchoi02 account img
+Mappings:
+  RegionMap:
+    'ap-northeast-2':
+      AMI: "ami-07eb3b622d65b3282"
+    'ap-northeast-1':
+      AMI: "ami-0d0b31f9a31b06baf"
+    'us-east-1':
+      AMI: "ami-0175605caef730e00"
+    'eu-central-1':
+      AMI: "ami-049bfdd9d1aab5776"
+    'eu-west-1':
+      AMI: "ami-07eaa7bc8ad97f43c"
+
+# AOCTANK Resources
+
+Resources:
+
+# Create VPCAOCTANK
+
+  VPCAOCTANK:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.11.0.0/16"
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: AOCTANK
+        - Key: project
+          Value: OCTANK
+
+# Create VPCAOCTANK-PublicSubnet A
+
+  PublicSubnetAAOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCAOCTANK
+      CidrBlock: "10.11.0.0/22"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: AOCTANK-Pub-A Subnet
+
+# Create VPCAOCTANK-PublicSubnet B
+
+  PublicSubnetBAOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCAOCTANK
+      CidrBlock: "10.11.4.0/22"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: AOCTANK-Pub-B Subnet
+
+# Create VPCAOCTANK-Public Route Table
+
+  PublicSubnetRouteTableAOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCAOCTANK
+      Tags:
+        - Key: Name
+          Value: AOCTANK-Public RT
+
+# Public A Subnet Accsociate VPCAOCTANK-Public Route Table
+
+  PublicASubnetRouteTableAssociationAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTableAOCTANK
+      SubnetId: !Ref PublicSubnetAAOCTANK
+
+# Public B Subnet Accsociate VPCAOCTANK-Public Route Table
+
+  PublicBSubnetRouteTableAssociationAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTableAOCTANK
+      SubnetId: !Ref PublicSubnetBAOCTANK
+
+# Create VPCAOCTANK-PrivateSubnet A
+
+  PrivateSubnetAAOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCAOCTANK
+      CidrBlock: "10.11.8.0/21"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: AOCTANK-Priv-A Subnet
+
+# Create VPCAOCTANK-PrivateSubnet B
+
+  PrivateSubnetBAOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCAOCTANK
+      CidrBlock: "10.11.16.0/21"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: AOCTANK-Priv-B Subnet
+
+# Create VPCAOCTANK-Private Route Table
+
+  PrivateSubnetRouteTableAOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCAOCTANK
+      Tags:
+        - Key: Name
+          Value: AOCTANK-Private RT
+
+# Private A Subnet Accsociate VPC-AOCTANK-Private Route Table
+
+  PrivateASubnetRouteTableAssociationAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTableAOCTANK
+      SubnetId: !Ref PrivateSubnetAAOCTANK
+
+# Private B Subnet Accsociate VPCAOCTANK-Private Route Table
+
+  PrivateBSubnetRouteTableAssociationAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTableAOCTANK
+      SubnetId: !Ref PrivateSubnetBAOCTANK
+
+# VPC AOCTANK ServerRole
+
+  ServerRoleAOCTANK:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: AOCTANK-SSMRole
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  InstanceProfileAOCTANK:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles: 
+        - !Ref ServerRoleAOCTANK
+
+# VPCAOCTANK Security Group - ICMP , SSH Permit 
+
+  AOCTANKEc2SecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
+      GroupName: AOCTANK-SG
+      VpcId: !Ref VPCAOCTANK
+      SecurityGroupIngress:
+        - IpProtocol: icmp
+          CidrIp: 0.0.0.0/0
+          FromPort: "-1"
+          ToPort: "-1"
+        - IpProtocol: tcp
+          CidrIp: 10.4.0.0/16
+          FromPort: "22"
+          ToPort: "22"
+      Tags:
+        - Key: Name
+          Value: AOCTANK-SG
+          
+# VPCAOCTANK EC2 Create
+
+  ServerAEc2AOCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateSubnetAAOCTANK
+    Properties:
+      SubnetId: !Ref PrivateSubnetAAOCTANK
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      PrivateIpAddress: 10.11.14.100
+      InstanceType: t3.small
+      SecurityGroupIds: 
+        - Ref: AOCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileAOCTANK
+      Tags:
+        - Key: Name
+          Value: AOCTANK-Server-A
+  
+  ServerBEc2AOCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateSubnetBAOCTANK
+    Properties:
+      SubnetId: !Ref PrivateSubnetBAOCTANK
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      PrivateIpAddress: 10.11.22.100
+      InstanceType: t3.small
+      SecurityGroupIds: 
+        - Ref: AOCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileAOCTANK
+      Tags:
+        - Key: Name
+          Value: AOCTANK-Server-B
+
+  AttachSubnetAAOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCAOCTANK
+      CidrBlock: "10.11.24.0/24"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: AOCTANK-Attach-A Subnet
+
+  AttachSubnetBAOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCAOCTANK
+      CidrBlock: "10.11.25.0/24"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: AOCTANK-Attach-B Subnet
+
+  AttachSubnetRouteTableAOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCAOCTANK
+      Tags:
+        - Key: Name
+          Value: AOCTANK-Attach RT
+
+  AttachASubnetRouteTableAssociationAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref AttachSubnetRouteTableAOCTANK
+      SubnetId: !Ref AttachSubnetAAOCTANK
+
+  AttachBSubnetRouteTableAssociationAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref AttachSubnetRouteTableAOCTANK
+      SubnetId: !Ref AttachSubnetBAOCTANK
+
+  EndpointSecGroupAOCTANK:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open-up ports for local VPC
+      GroupName: AOCTANK-EP-SG
+      VpcId: !Ref VPCAOCTANK
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "1"
+          ToPort: "65535"
+          CidrIp: 10.11.0.0/16
+        - IpProtocol: udp
+          FromPort: "1"
+          ToPort: "65535"
+          CidrIp: 10.11.0.0/16
+      Tags:
+        - Key: Name
+          Value: AOCTANK-EP-SG
+
+  SSMEndpointAOCTANK:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPCAOCTANK
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SubnetIds:
+        - Ref: AttachSubnetAAOCTANK
+        - Ref: AttachSubnetBAOCTANK
+      SecurityGroupIds: 
+        - Ref: EndpointSecGroupAOCTANK
+
+  SSMMEndpointAOCTANK:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPCAOCTANK
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SubnetIds:
+        - Ref: AttachSubnetAAOCTANK
+        - Ref: AttachSubnetBAOCTANK
+      SecurityGroupIds: 
+        - Ref: EndpointSecGroupAOCTANK
+
+Outputs:
+  # AOCTANK Outputs
+  VPCAOCTANK:
+    Description: "The Created VPC"
+    Value: !Ref VPCAOCTANK
+    Export:
+      Name: AOCTANK-VPC
+
+  AttachSubnetAAOCTANK:
+    Description: "AOCTANK Attach Subnet A"
+    Value: !Ref AttachSubnetAAOCTANK
+    Export:
+      Name: AOCTANK-AttachSubnetA
+  AttachSubnetBAOCTANK:
+    Description: "AOCTANK Attach Subnet B"
+    Value: !Ref AttachSubnetBAOCTANK
+    Export:
+      Name: AOCTANK-AttachSubnetB
+
+
+  PublicSubnetAAOCTANK:
+    Description: "AOCTANK Public Subnet A"
+    Value: !Ref PublicSubnetAAOCTANK
+    Export:
+      Name: AOCTANK-PublicSubnetA
+  PublicSubnetBAOCTANK:
+    Description: "AOCTANK Public Subnet B"
+    Value: !Ref PublicSubnetBAOCTANK
+    Export:
+      Name: AOCTANK-PublicSubnetB
+  
+  PrivateSubnetAAOCTANK:
+    Description: "AOCTANK Private Subnet A"
+    Value: !Ref PrivateSubnetAAOCTANK
+    Export:
+      Name: AOCTANK-PrivateSubnetA
+  PrivateSubnetBAOCTANK:
+    Description: "AOCTANK Private Subnet B"
+    Value: !Ref PrivateSubnetBAOCTANK
+    Export:
+      Name: AOCTANK-PrivateSubnetB 
+  PrivateSubnetRouteTableAOCTANK:
+    Description: "ITOCTANK Private Route Table"
+    Value: !Ref PrivateSubnetRouteTableAOCTANK
+    Export:
+      Name: AOCTANK-Private-Route-Table
+
+  ServerAAOCTANK:
+    Description: "AOCTANK EC2 A IP address"
+    Value: !GetAtt ServerAEc2AOCTANK.PrivateIp
+    Export:
+      Name: AOCTANK-ServerAIP
+  ServerBAOCTANK:
+    Description: "AOCTANK EC2 B IP address"
+    Value: !GetAtt ServerBEc2AOCTANK.PrivateIp
+    Export:
+      Name: AOCTANK-ServerBIP

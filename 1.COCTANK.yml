@@ -1,0 +1,411 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "This is the data center automation configuration of the OCTANK virtual company.1 VPCs, 2AZs, 10.21.0.0/16"
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "VPC Parameters"
+        Parameters:
+          - AvailabilityZoneA
+          - AvailabilityZoneB
+
+Parameters:
+  AvailabilityZoneA:
+    Description: "Choose AZ1 for your VPC.- Default Region : ap-northeast-2"
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+  AvailabilityZoneB:
+    Description: "Choose AZ2 for your VPC.- Default Region : ap-northeast-2"
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+
+# AZ Parameters
+
+Parameters:
+  AvailabilityZoneA:
+    Description: "Choose AZ1 for your VPC.- Default Region : ap-northeast-2"
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+  AvailabilityZoneB:
+    Description: "Choose AZ2 for your VPC.- Default Region : ap-northeast-2"
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+
+# whchoi ec2 images
+
+#Mappings:
+#  RegionMap:
+#    'ap-northeast-2':
+#      AMI: "ami-0e956abc893b8fdc2"
+#    'ap-northeast-1':
+#      AMI: "ami-0f21259d1600d67c7"
+#    'us-east-1':
+#      AMI: "ami-09bf161a067c3055c"
+#    'eu-central-1':
+#      AMI: "ami-00e257fbc328baa25"
+#    'eu-west-1':
+#      AMI: "ami-07eaa7bc8ad97f43c"
+
+# whchoi02 account img
+Mappings:
+  RegionMap:
+    'ap-northeast-2':
+      AMI: "ami-07eb3b622d65b3282"
+    'ap-northeast-1':
+      AMI: "ami-0d0b31f9a31b06baf"
+    'us-east-1':
+      AMI: "ami-0175605caef730e00"
+    'eu-central-1':
+      AMI: "ami-049bfdd9d1aab5776"
+    'eu-west-1':
+      AMI: "ami-07eaa7bc8ad97f43c"
+
+Resources:
+
+# COCTANK Resources
+
+  VPCCOCTANK:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.21.0.0/16"
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: COCTANK
+        - Key: project
+          Value: OCTANK
+
+# Create VPCCOCTANK-PublicSubnet A
+
+  PublicSubnetACOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCCOCTANK
+      CidrBlock: "10.21.0.0/22"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: COCTANK-Pub-A Subnet
+
+# Create VPCCOCTANK-PublicSubnet B
+
+  PublicSubnetBCOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCCOCTANK
+      CidrBlock: "10.21.4.0/22"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: COCTANK-Pub-B Subnet
+
+# Create VPCCOCTANK-Public Route Table
+
+  PublicSubnetRouteTableCOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCCOCTANK
+      Tags:
+        - Key: Name
+          Value: COCTANK-Public RT
+
+# Public A Subnet Accsociate VPCCOCTANK-Public Route Table
+
+  PublicASubnetRouteTableAssociatioAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTableCOCTANK
+      SubnetId: !Ref PublicSubnetACOCTANK
+
+# Public B Subnet Accsociate VPCCOCTANK-Public Route Table
+
+  PublicBSubnetRouteTableAssociatioAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTableCOCTANK
+      SubnetId: !Ref PublicSubnetBCOCTANK
+
+# Create VPCCOCTANK-PrivateSubnet A
+
+  PrivateSubnetACOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCCOCTANK
+      CidrBlock: "10.21.8.0/21"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: COCTANK-Priv-A Subnet
+
+# Create VPCCOCTANK-PrivateSubnet B
+
+  PrivateSubnetBCOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCCOCTANK
+      CidrBlock: "10.21.16.0/21"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: COCTANK-Priv-B Subnet
+
+# Create VPCCOCTANK-Private Route Table
+
+  PrivateSubnetRouteTableCOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCCOCTANK
+      Tags:
+        - Key: Name
+          Value: COCTANK-Private RT
+
+# Private A Subnet Accsociate VPCCOCTANK-Private Route Table
+
+  PrivateASubnetRouteTableAssociatioAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTableCOCTANK
+      SubnetId: !Ref PrivateSubnetACOCTANK
+
+# Private B Subnet Accsociate VPCCOCTANK-Private Route Table
+
+  PrivateBSubnetRouteTableAssociatioAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTableCOCTANK
+      SubnetId: !Ref PrivateSubnetBCOCTANK
+
+# VPC COCTANK ServerRole
+
+  ServerRoleCOCTANK:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: COCTANK-SSMRole
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  InstanceProfileCOCTANK:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref ServerRoleCOCTANK
+
+# VPCCOCTANK Security Group - ICMP , SSH Permit 
+
+  COCTANKEc2SecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
+      GroupName: COCTANK-SG
+      VpcId: !Ref VPCCOCTANK
+      SecurityGroupIngress:
+        - IpProtocol: icmp
+          CidrIp: 0.0.0.0/0
+          FromPort: "-1"
+          ToPort: "-1"
+        - IpProtocol: tcp
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: 10.4.0.0/16
+      Tags:
+        - Key: Name
+          Value: COCTANK-SG
+# VPCCOCTANK EC2 Create
+
+  ServerAEc2COCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateSubnetACOCTANK
+    Properties:
+      SubnetId:
+        Ref: PrivateSubnetACOCTANK
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      PrivateIpAddress: 10.21.14.100
+      InstanceType: t3.small
+      SecurityGroupIds:
+        - Ref: COCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileCOCTANK
+      Tags:
+        - Key: Name
+          Value: COCTANK-Server-A
+
+  ServerBEc2COCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateSubnetBCOCTANK
+    Properties:
+      SubnetId:
+        Ref: PrivateSubnetBCOCTANK
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      PrivateIpAddress: 10.21.22.100
+      InstanceType: t3.small
+      SecurityGroupIds:
+        - Ref: COCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileCOCTANK
+      Tags:
+        - Key: Name
+          Value: COCTANK-Server-B
+
+  AttachSubnetACOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPCCOCTANK
+      CidrBlock: "10.21.24.0/24"
+      AvailabilityZone:
+        Ref: AvailabilityZoneA
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: COCTANK-Attach-A Subnet
+
+  AttachSubnetBCOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCCOCTANK
+      CidrBlock: "10.21.25.0/24"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: COCTANK-Attach-B Subnet
+
+  AttachSubnetRouteTableCOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCCOCTANK
+      Tags:
+        - Key: Name
+          Value: COCTANK-Attach RT
+
+  AttachASubnetRouteTableAssociatioAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref AttachSubnetRouteTableCOCTANK
+      SubnetId: !Ref AttachSubnetACOCTANK
+
+  AttachBSubnetRouteTableAssociatioAOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref AttachSubnetRouteTableCOCTANK
+      SubnetId: !Ref AttachSubnetBCOCTANK
+
+  EndpointSecGroupCOCTANK:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open-up ports for local VPC
+      GroupName: COCTANK-EP-SG
+      VpcId: !Ref VPCCOCTANK
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "1"
+          ToPort: "65535"
+          CidrIp: 10.21.0.0/16
+        - IpProtocol: udp
+          FromPort: "1"
+          ToPort: "65535"
+          CidrIp: 10.21.0.0/16
+      Tags:
+        - Key: Name
+          Value: COCTANK-EP-SG
+
+  SSMEndpointCOCTANK:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPCCOCTANK
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SubnetIds:
+        - Ref: AttachSubnetACOCTANK
+        - Ref: AttachSubnetBCOCTANK
+      SecurityGroupIds:
+        - Ref: EndpointSecGroupCOCTANK
+
+  SSMMEndpointCOCTANK:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPCCOCTANK
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SubnetIds:
+        - Ref: AttachSubnetACOCTANK
+        - Ref: AttachSubnetBCOCTANK
+      SecurityGroupIds:
+        - Ref: EndpointSecGroupCOCTANK
+
+
+Outputs:
+
+  # COCTANK Outputs
+  VPCCOCTANK:
+    Description: "The Created VPC"
+    Value: !Ref VPCCOCTANK
+    Export:
+      Name: COCTANK-VPC
+
+  AttachSubnetACOCTANK:
+    Description: "COCTANK Attach Subnet A"
+    Value: !Ref AttachSubnetACOCTANK
+    Export:
+      Name: COCTANK-AttachSubnetA
+  AttachSubnetBCOCTANK:
+    Description: "COCTANK Attach Subnet B"
+    Value: !Ref AttachSubnetBCOCTANK
+    Export:
+      Name: COCTANK-AttachSubnetB
+
+  PublicSubnetACOCTANK:
+    Description: "COCTANK Public Subnet A"
+    Value: !Ref PublicSubnetACOCTANK
+    Export:
+      Name: COCTANK-PublicSubnetA
+  PublicSubnetBCOCTANK:
+    Description: "COCTANK Public Subnet B"
+    Value: !Ref PublicSubnetBCOCTANK
+    Export:
+      Name: COCTANK-PublicSubnetB
+
+  PrivateSubnetACOCTANK:
+    Description: "COCTANK Private Subnet A"
+    Value: !Ref PrivateSubnetACOCTANK
+    Export:
+      Name: COCTANK-PrivateSubnetA
+  PrivateSubnetBCOCTANK:
+    Description: "COCTANK Private Subnet B"
+    Value: !Ref PrivateSubnetBCOCTANK
+    Export:
+      Name: COCTANK-PrivateSubnetB
+  PrivateSubnetRouteTableCOCTANK:
+    Description: "COCTANK Private Route Table"
+    Value: !Ref PrivateSubnetRouteTableCOCTANK
+    Export:
+      Name: COCTANK-Private-Route-Table
+
+  ServerACOCTANK:
+    Description: "BOCTANK EC2 IP address"
+    Value: !GetAtt ServerAEc2COCTANK.PrivateIp
+    Export:
+      Name: COCTANK-ServerAIP
+  ServerBCOCTANK:
+    Description: "BOCTANK EC2 IP address"
+    Value: !GetAtt ServerBEc2COCTANK.PrivateIp
+    Export:
+      Name: COCTANK-ServerBIP

@@ -1,0 +1,458 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "This is the data center automation configuration of the ITOCTANK virtual company.1 VPCs, 2AZs, 10.0.0.0/16"
+
+
+Metadata:
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: "VPC Parameters"
+        Parameters:
+          - AvailabilityZoneA
+          - AvailabilityZoneB
+
+# AZ Parameters
+
+Parameters:
+  AvailabilityZoneA:
+    Description: "Choose AZ1 for your VPC.- Default Region : ap-northeast-2"
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+  AvailabilityZoneB:
+    Description: "Choose AZ2 for your VPC.- Default Region : ap-northeast-2"
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: "ap-northeast-2"
+
+# whchoi ec2 images
+
+#Mappings:
+#  RegionMap:
+#    'ap-northeast-2':
+#      AMI: "ami-0e956abc893b8fdc2"
+#    'ap-northeast-1':
+#      AMI: "ami-0f21259d1600d67c7"
+#    'us-east-1':
+#      AMI: "ami-09bf161a067c3055c"
+#    'eu-central-1':
+#      AMI: "ami-00e257fbc328baa25"
+#    'eu-west-1':
+#      AMI: "ami-07eaa7bc8ad97f43c"
+
+# whchoi02 account img
+Mappings:
+  RegionMap:
+    'ap-northeast-2':
+      AMI: "ami-07eb3b622d65b3282"
+    'ap-northeast-1':
+      AMI: "ami-0d0b31f9a31b06baf"
+    'us-east-1':
+      AMI: "ami-0175605caef730e00"
+    'eu-central-1':
+      AMI: "ami-049bfdd9d1aab5776"
+    'eu-west-1':
+      AMI: "ami-07eaa7bc8ad97f43c"
+
+Resources:
+
+# ITOCTANK Resources - This VPC holds shared Services for all
+  
+  VPCITOCTANK:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: ITOCTANK
+        - Key: project
+          Value: OCTANK
+
+# Create VPCITOCTANK-PublicSubnet A
+
+  PublicSubnetAITOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCITOCTANK
+      CidrBlock: "10.0.0.0/22"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Pub-A-Subnet
+
+# Create VPCITOCTANK-PublicSubnet B
+
+  PublicSubnetBITOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCITOCTANK
+      CidrBlock: "10.0.4.0/22"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Pub-B-Subnet
+
+# Create VPCBOCTANK-Public Route Table
+
+  PublicSubnetRouteTableITOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPCITOCTANK
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Public RT
+
+# Public A Subnet Accsociate VPCITOCTANK-Public Route Table
+
+  PublicASubnetRouteTableAssociationITOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTableITOCTANK
+      SubnetId: !Ref PublicSubnetAITOCTANK
+
+# Public B Subnet Accsociate VPCITOCTANK-Public Route Table
+
+  PublicBSubnetRouteTableAssociationITOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicSubnetRouteTableITOCTANK
+      SubnetId: !Ref PublicSubnetBITOCTANK
+
+# Create VPCITOCTANK-PrivateSubnet A
+
+  PrivateSubnetAITOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPCITOCTANK
+      CidrBlock: "10.0.8.0/21"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Priv-A Subnet
+
+# Create VPCBOCTANK-PrivateSubnet B
+
+  PrivateSubnetBITOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCITOCTANK
+      CidrBlock: "10.0.16.0/21"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Priv-B Subnet
+
+# Create VPCBOCTANK-Private Route Table
+
+  PrivateSubnetRouteTableITOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPCITOCTANK
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Private RT
+
+# Private A Subnet Accsociate VPCBOCTANK-Private Route Table
+
+  PrivateASubnetRouteTableAssociationITOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTableITOCTANK
+      SubnetId: !Ref PrivateSubnetAITOCTANK
+
+# Private B Subnet Accsociate VPCBOCTANK-Private Route Table
+
+  PrivateBSubnetRouteTableAssociationITOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetRouteTableITOCTANK
+      SubnetId: !Ref PrivateSubnetBITOCTANK
+
+# VPC BOCTANK ServerRole
+
+  ServerRoleITOCTANK:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ITOCTANK-SSMRole
+      Path: "/"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  InstanceProfileITOCTANK:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref ServerRoleITOCTANK
+
+# VPCBOCTANK Security Group - ICMP , SSH Permit 
+
+  ITOCTANKEc2SecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
+      GroupName: ITOCTANK-SG
+      VpcId: !Ref VPCITOCTANK
+      SecurityGroupIngress:
+        - IpProtocol: icmp
+          CidrIp: 0.0.0.0/0
+          FromPort: "-1"
+          ToPort: "-1"
+        - IpProtocol: tcp
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: 10.4.0.0/16
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-SG
+
+# VPCITOCTANK EC2 Create
+
+  ServerAEc2ITOCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateSubnetBITOCTANK
+    Properties:
+      SubnetId: !Ref PrivateSubnetAITOCTANK
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      InstanceType: t3.small
+      PrivateIpAddress: 10.0.14.100
+      SecurityGroupIds:
+        - Ref: ITOCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileITOCTANK
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Server-A
+
+  ServerBEc2ITOCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateSubnetBITOCTANK
+    Properties:
+      SubnetId: !Ref PrivateSubnetBITOCTANK
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      InstanceType: t3.small
+      PrivateIpAddress: 10.0.22.100
+      SecurityGroupIds:
+        - Ref: ITOCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileITOCTANK
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Server-B
+
+  AttachSubnetAITOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCITOCTANK
+      CidrBlock: "10.0.24.0/24"
+      AvailabilityZone: !Ref AvailabilityZoneA
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Attach-A Subnet
+
+  AttachSubnetBITOCTANK:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPCITOCTANK
+      CidrBlock: "10.0.25.0/24"
+      AvailabilityZone: !Ref AvailabilityZoneB
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Attach-B Subnet
+
+  AttachSubnetRouteTableITOCTANK:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPCITOCTANK
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Attach RT
+
+  AttachASubnetRouteTableAssociationITOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref AttachSubnetRouteTableITOCTANK
+      SubnetId: !Ref AttachSubnetAITOCTANK
+
+  AttachBSubnetRouteTableAssociationITOCTANK:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref AttachSubnetRouteTableITOCTANK
+      SubnetId: !Ref AttachSubnetBITOCTANK
+
+  EndpointSecGroupITOCTANK:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open-up ports for local VPC
+      GroupName: ITOCTANK-EP-SG
+      VpcId: !Ref VPCITOCTANK
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "1"
+          ToPort: "65535"
+          CidrIp: 10.0.0.0/16
+        - IpProtocol: udp
+          FromPort: "1"
+          ToPort: "65535"
+          CidrIp: 10.0.0.0/16
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-EP-SG
+
+  SSMEndpointITOCTANK:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId:
+        Ref: VPCITOCTANK
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SubnetIds:
+        - Ref: AttachSubnetAITOCTANK
+        - Ref: AttachSubnetBITOCTANK
+      SecurityGroupIds:
+        - Ref: EndpointSecGroupITOCTANK
+
+  SSMMEndpointITOCTANK:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPCITOCTANK
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SubnetIds:
+        - Ref: AttachSubnetAITOCTANK
+        - Ref: AttachSubnetBITOCTANK
+      SecurityGroupIds:
+        - Ref: EndpointSecGroupITOCTANK
+
+  ITOCTANKInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-IGW
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPCITOCTANK
+      InternetGatewayId: !Ref ITOCTANKInternetGateway
+
+  ITOCTANKDirectInternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: ITOCTANKInternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref ITOCTANKInternetGateway
+      RouteTableId: !Ref PublicSubnetRouteTableITOCTANK
+
+# Creat ITOCTANK NAT GateWay
+
+  ITOCTANKNATEIP:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: vpc
+
+  ITOCTANKNATGateway:
+    DependsOn: AttachGateway
+    Type: "AWS::EC2::NatGateway"
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - ITOCTANKNATEIP
+          - AllocationId
+      SubnetId: !Ref PublicSubnetAITOCTANK
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-NATGW
+
+  ITOCTANKNATInternetRouteAttach:
+    Type: AWS::EC2::Route
+    DependsOn: ITOCTANKInternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref ITOCTANKNATGateway
+      RouteTableId: !Ref AttachSubnetRouteTableITOCTANK
+
+  ITOCTANKNATInternetRoutePrivate:
+    Type: AWS::EC2::Route
+    DependsOn: ITOCTANKInternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref ITOCTANKNATGateway
+      RouteTableId: !Ref PrivateSubnetRouteTableITOCTANK
+
+Outputs:
+# Datacenter Services 1 Outputs
+  VPCITOCTANK:
+    Description: "Datacenter Services VPC"
+    Value: !Ref VPCITOCTANK
+    Export:
+      Name: ITOCTANK-VPC
+
+  AttachSubnetAITOCTANK:
+    Description: "ITOCTANK Attach Subnet A"
+    Value: !Ref AttachSubnetAITOCTANK
+    Export:
+      Name: ITOCTANK-AttachSubnetA
+  AttachSubnetBITOCTANK:
+    Description: "ITOCTANK Attach Subnet B"
+    Value: !Ref AttachSubnetBITOCTANK
+    Export:
+      Name: ITOCTANK-AttachSubnetB
+
+  PublicSubnetAITOCTANK:
+    Description: "ITOCTANK Public Subnet A"
+    Value: !Ref PublicSubnetAITOCTANK
+    Export:
+      Name: ITOCTANK-PublicSubnetA
+  PublicSubnetBITOCTANK:
+    Description: "ITOCTANK Public Subnet B"
+    Value: !Ref PublicSubnetBITOCTANK
+    Export:
+      Name: ITOCTANK-PublicSubnetB
+
+  PrivateSubnetAITOCTANK:
+    Description: "ITOCTANK Private Subnet A"
+    Value: !Ref PrivateSubnetAITOCTANK
+    Export:
+      Name: ITOCTANK-Attach-A-Subnet
+  PrivateSubnetBITOCTANK:
+    Description: "ITOCTANK Private Subnet B"
+    Value: !Ref PrivateSubnetBITOCTANK
+    Export:
+      Name: ITOCTANK-Attach-B-Subnet
+  PrivateSubnetRouteTableITOCTANK:
+    Description: "ITOCTANK Private Route Table"
+    Value: !Ref PrivateSubnetRouteTableITOCTANK
+    Export:
+      Name: ITOCTANK-Private-Route-Table
+
+  ServerAITOCTANK:
+    Description: "ITOCTANK EC2 A IP address"
+    Value: !GetAtt ServerAEc2ITOCTANK.PrivateIp
+    Export:
+      Name: ITOCTANK-ServerAIP
+  ServerBITOCTANK:
+    Description: "ITOCTANK EC2 B IP address"
+    Value: !GetAtt ServerBEc2ITOCTANK.PrivateIp
+    Export:
+      Name: ITOCTANK-ServerBIP
