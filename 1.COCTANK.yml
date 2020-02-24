@@ -213,7 +213,7 @@ Resources:
   COCTANKEc2SecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
+      GroupDescription: Open-up ports for ICMP and SSH from All network
       GroupName: COCTANK-SG
       VpcId: !Ref VPCCOCTANK
       SecurityGroupIngress:
@@ -224,7 +224,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: "22"
           ToPort: "22"
-          CidrIp: 10.4.0.0/16
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: COCTANK-SG
@@ -316,11 +316,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 10.21.0.0/16
+          CidrIp: 0.0.0.0/16
         - IpProtocol: udp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 10.21.0.0/16
+          CidrIp: 0.0.0.0/16
       Tags:
         - Key: Name
           Value: COCTANK-EP-SG

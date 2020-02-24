@@ -209,16 +209,16 @@ Resources:
   ZOCTANKEc2SecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
+      GroupDescription: Open-up ports for ICMP and SSH from All networks
       GroupName: ZOCTANK-SG
       VpcId: !Ref VPCZOCTANK
       SecurityGroupIngress:
         - IpProtocol: icmp
-          CidrIp: 10.0.0.0/8
+          CidrIp: 0.0.0.0/0
           FromPort: "-1"
           ToPort: "-1"
         - IpProtocol: tcp
-          CidrIp: 10.4.0.0/16
+          CidrIp: 0.0.0.0/0
           FromPort: "22"
           ToPort: "22"
       Tags:

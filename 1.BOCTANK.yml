@@ -207,7 +207,7 @@ Resources:
   BOCTANKEc2SecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Open-up ports for ICMP from 10.x.x.x and SSH from Datacenter
+      GroupDescription: Open-up ports for ICMP from 10.x.x.x and SSH from all Network
       GroupName: BOCTANK-SG
       VpcId: !Ref VPCBOCTANK
       SecurityGroupIngress:
@@ -218,7 +218,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: "22"
           ToPort: "22"
-          CidrIp: 10.4.0.0/16
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: BOCTANK-SG
@@ -308,11 +308,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 10.12.0.0/16
+          CidrIp: 0.0.0.0/16
         - IpProtocol: udp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 10.12.0.0/16
+          CidrIp: 0.0.0.0/16
       Tags:
         - Key: Name
           Value: BOCTANK-EP-SG

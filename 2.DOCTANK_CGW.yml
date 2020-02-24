@@ -101,11 +101,11 @@ Resources:
         Fn::ImportValue: !Sub "DOCTANK-VPC"
       SecurityGroupIngress:
         - IpProtocol: -1
-          CidrIp: 10.4.0.0/16
+          CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
           FromPort: "22"
           ToPort: "22"
-          CidrIp: 10.4.0.0/16
+          CidrIp: 0.0.0.0/0
 
   CSRENI:
     Condition: CreateCiscoCSR

@@ -207,7 +207,7 @@ Resources:
   DOCTANKEc2SecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
+      GroupDescription: Open-up ports for ICMP and SSH from All Network
       GroupName: DOCTANK-SG
       VpcId: !Ref VPCDOCTANK
       SecurityGroupIngress:
@@ -218,7 +218,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: "22"
           ToPort: "22"
-          CidrIp: 10.1.0.0/16
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: DOCTANK-SG
@@ -300,18 +300,18 @@ Resources:
   EndpointSecGroupDOCTANK:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Open-up ports for local VPC
+      GroupDescription: Open-up ports for All Network
       GroupName: DOCTANK-EP-SG
       VpcId: !Ref VPCDOCTANK
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: "0"
           ToPort: "65535"
-          CidrIp: 10.1.0.0/16
+          CidrIp: 0.0.0.0/16
         - IpProtocol: udp
           FromPort: "0"
           ToPort: "65535"
-          CidrIp: 10.1.0.0/16
+          CidrIp: 0.0.0.0/16
       Tags:
         - Key: Name
           Value: DOCTANK-EP-SG

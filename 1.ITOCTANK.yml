@@ -206,7 +206,7 @@ Resources:
   ITOCTANKEc2SecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
+      GroupDescription: Open-up ports for ICMP and SSH from All network
       GroupName: ITOCTANK-SG
       VpcId: !Ref VPCITOCTANK
       SecurityGroupIngress:
@@ -217,10 +217,33 @@ Resources:
         - IpProtocol: tcp
           FromPort: "22"
           ToPort: "22"
-          CidrIp: 10.4.0.0/16
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: ITOCTANK-SG
+
+  ITOCTANKEc2BastionSecGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Open-up ports for Bastion EC2
+      GroupName: ITOCTANK-Bastion-SG
+      VpcId: !Ref VPCITOCTANK
+      SecurityGroupIngress:
+        - IpProtocol: icmp
+          CidrIp: 0.0.0.0/0
+          FromPort: "-1"
+          ToPort: "-1"
+        - IpProtocol: tcp
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Bastion-SG
 
 # VPCITOCTANK EC2 Create
 
@@ -253,6 +276,20 @@ Resources:
       Tags:
         - Key: Name
           Value: ITOCTANK-Server-B
+
+  ServerBastionEc2ITOCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PublicSubnetAITOCTANK
+    Properties:
+      SubnetId: !Ref PublicSubnetAITOCTANK
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      InstanceType: t3.small
+      SecurityGroupIds:
+        - Ref: ITOCTANKEc2BastionSecGroup
+      IamInstanceProfile: !Ref InstanceProfileITOCTANK
+      Tags:
+        - Key: Name
+          Value: ITOCTANK-Bastion
 
   AttachSubnetAITOCTANK:
     Type: AWS::EC2::Subnet
@@ -307,11 +344,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 10.0.0.0/16
+          CidrIp: 0.0.0.0/0
         - IpProtocol: udp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 10.0.0.0/16
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: ITOCTANK-EP-SG
