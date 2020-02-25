@@ -316,11 +316,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 0.0.0.0/16
+          CidrIp: 0.0.0.0/0
         - IpProtocol: udp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 0.0.0.0/16
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: COCTANK-EP-SG

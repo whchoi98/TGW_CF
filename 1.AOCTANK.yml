@@ -6,7 +6,7 @@ Metadata:
     ParameterGroups:
       - Label:
           default: "VPC Parameters"
-        Parameters:ƒ
+        Parameters:
           - AvailabilityZoneA
           - AvailabilityZoneB
 
@@ -305,11 +305,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 0.0.0.0/16
+          CidrIp: 0.0.0.0/0
         - IpProtocol: udp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 0.0.0.0/16
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: AOCTANK-EP-SG
