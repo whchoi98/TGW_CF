@@ -119,8 +119,5 @@ router bgp 65001
     neighbor 169.254.11.1 timers 10 30 30
     neighbor 169.254.11.1 activate
     neighbor 169.254.11.1 soft-reconfiguration inbound
-! To advertise additional prefixes to Amazon VPC, copy the 'network' statement
-! and identify the prefix you wish to advertise. Make sure the prefix is present
-! in the routing table of the device with a valid next-hop.
     Network 10.4.0.0 mask 255.255.0.0
   exit
