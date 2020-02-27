@@ -32,7 +32,7 @@ Conditions:
   CreateCiscoCSR: !Equals [ !Ref RouterChoice, Cisco ]
 
 Mappings:
-  # AMI for Cisco CSR1kv and Juniper SRX
+  # AMI for Cisco CSR1kv 
   RegionMap:
     'ap-northeast-2': 
       CSRAMI: "ami-0bfd6b68306c37acd"
@@ -151,7 +151,7 @@ Resources:
     Properties:
       RouteTableId:
         Fn::ImportValue: !Sub "DOCTANK-Private-Route-Table"
-      DestinationCidrBlock: 10.0.0.0/11
+      DestinationCidrBlock: 10.0.0.0/8
       NetworkInterfaceId:
         Ref: CSRENI
 
@@ -192,7 +192,7 @@ Resources:
     Properties:
       RouteTableId:
         Fn::ImportValue: DOCTANK-Private-Route-Table
-      DestinationCidrBlock: 10.0.0.0/11
+      DestinationCidrBlock: 10.0.0.0/8
       NetworkInterfaceId:
         Ref: CSRENI
   
@@ -203,7 +203,7 @@ Resources:
     Properties:
       RouteTableId:
         Fn::ImportValue: DOCTANK-Public-Route-Table
-      DestinationCidrBlock: 10.0.0.0/11
+      DestinationCidrBlock: 10.0.0.0/8
       NetworkInterfaceId:
         Ref: CSRENI
 
