@@ -13,18 +13,18 @@ Metadata:
 Parameters:
 #  ParentStack:
 #    Description: "Name of the CFN Stack for VPCs"
-#    Type: String
+#    : String
 #    Default: "OCTANK"
 
   KeyPair:
     Description: "Keypair to access the CSR"
-    Type: "AWS::EC2::KeyPair::KeyName"
+    : "AWS::EC2::KeyPair::KeyName"
     Default: "whchoi02"
  
   RouterChoice: 
     Description: Virtual Routers for the Virtual DC CGW
     Default: Cisco
-    Type: String
+    : String
     AllowedValues: 
       - Cisco
 
@@ -49,7 +49,7 @@ Resources:
 
   CiscoCustomerGateway:
     Condition: CreateCiscoCSR
-    Type: AWS::EC2::CustomerGateway
+    : AWS::EC2::CustomerGateway
     DependsOn: CSRIP
     Properties:
       BgpAsn: 65001
@@ -57,18 +57,18 @@ Resources:
       Tags:
         - Key: Name
           Value: DOCTANK-CGW
-      Type: ipsec.1
+      : ipsec.1
 
 # CSRVPN Router in the Datacenter
 
   CSRIP:
     Condition: CreateCiscoCSR
-    Type: "AWS::EC2::EIP"
+    : "AWS::EC2::EIP"
     Properties:
       Domain: vpc
 
   ServerRole:
-    Type: AWS::IAM::Role
+    : AWS::IAM::Role
     Properties:
       RoleName: !Join ["-", [DOCTANK, Ref: "AWS::StackName", "SSMRole"]]
       Path: "/"
@@ -85,7 +85,7 @@ Resources:
               - sts:AssumeRole
 
   InstanceProfile:
-    Type: AWS::IAM::InstanceProfile
+    : AWS::IAM::InstanceProfile
     Properties:
       Path: "/"
       Roles:
@@ -93,7 +93,7 @@ Resources:
 
   CSRSecGroup:
     Condition: CreateCiscoCSR
-    Type: AWS::EC2::SecurityGroup
+    : AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Open-up ports for local VPC and SSH
       GroupName: CSR-SG
@@ -109,7 +109,7 @@ Resources:
 
   CSRENI:
     Condition: CreateCiscoCSR
-    Type: AWS::EC2::NetworkInterface
+    : AWS::EC2::NetworkInterface
     Properties:
       SubnetId:
         Fn::ImportValue: !Sub "DOCTANK-PublicSubnetA"
@@ -123,13 +123,13 @@ Resources:
 
   CSRInstance:
     Condition: CreateCiscoCSR
-    Type: AWS::EC2::Instance
+    : AWS::EC2::Instance
     Properties:
       NetworkInterfaces:
         - NetworkInterfaceId: !Ref CSRENI
           DeviceIndex: 0
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", CSRAMI]
-      InstanceType: c5.large
+      Instance: c5.large
       KeyName: !Ref KeyPair
       IamInstanceProfile:
         Ref: InstanceProfile
@@ -158,12 +158,12 @@ Resources:
 # Create NAT Gateway for BindServer To Get out to Internet
 
   DOCTANKNATEIP:
-    Type: "AWS::EC2::EIP"
+    : "AWS::EC2::EIP"
     Properties:
       Domain: vpc
 
   DOCTANKNATGateway:
-    Type: "AWS::EC2::NatGateway"
+    : "AWS::EC2::NatGateway"
     Properties:
       AllocationId:
         Fn::GetAtt:
@@ -176,7 +176,7 @@ Resources:
           Value: DOCTANK-NATGW
 
   PrivateDefaultRoute:
-    Type: AWS::EC2::Route
+    : AWS::EC2::Route
     DependsOn: DOCTANKNATGateway
     Properties:
       RouteTableId:
@@ -187,7 +187,7 @@ Resources:
 
   PrivateAWSRoute:
     Condition: CreateCiscoCSR
-    Type: AWS::EC2::Route
+    : AWS::EC2::Route
     DependsOn: CSRENI
     Properties:
       RouteTableId:
@@ -198,7 +198,7 @@ Resources:
   
   PublicAWSRoute:
     Condition: CreateCiscoCSR
-    Type: AWS::EC2::Route
+    : AWS::EC2::Route
     DependsOn: CSRENI
     Properties:
       RouteTableId:

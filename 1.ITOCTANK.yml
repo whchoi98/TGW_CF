@@ -380,6 +380,8 @@ Resources:
       SecurityGroupIds:
         - Ref: EndpointSecGroupITOCTANK
 
+# Create ITOCTANK IGW
+
   ITOCTANKInternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
@@ -438,7 +440,7 @@ Resources:
       RouteTableId: !Ref PrivateSubnetRouteTableITOCTANK
 
 Outputs:
-# Datacenter Services 1 Outputs
+# IT OCTANK Outputs
   VPCITOCTANK:
     Description: "Datacenter Services VPC"
     Value: !Ref VPCITOCTANK

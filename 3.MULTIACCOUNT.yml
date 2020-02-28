@@ -85,7 +85,7 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: ZOCTANK-Pub-A Subnet
+          Value: ZOCTANK-Pub-A-Subnet
 
 # Create VPCZOCTANK-PublicSubnet B
 
@@ -98,7 +98,7 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: ZOCTANK-Pub-B Subnet
+          Value: ZOCTANK-Pub-B-Subnet
 
 # Create VPCZOCTANK-Public Route Table
 
@@ -309,11 +309,11 @@ Resources:
         - IpProtocol: tcp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 10.5.0.0/16
+          CidrIp: 0.0.0.0/0
         - IpProtocol: udp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 10.5.0.0/16
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: ZOCTANK-EP-SG
@@ -343,7 +343,64 @@ Resources:
         - Ref: AttachSubnetBZOCTANK
       SecurityGroupIds: 
         - Ref: EndpointSecGroupZOCTANK
+# Create ZOCTANK IGW
 
+  ZOCTANKInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-IGW
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPCZOCTANK
+      InternetGatewayId: !Ref ZOCTANKInternetGateway
+
+  ZOCTANKDirectInternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: ZOCTANKInternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref ITOCTANKInternetGateway
+      RouteTableId: !Ref PublicSubnetRouteTableZOCTANK
+
+# Creat ZOCTANK NAT GateWay
+
+  ZOCTANKNATEIP:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: vpc
+
+  ZOCTANKNATGateway:
+    DependsOn: AttachGateway
+    Type: "AWS::EC2::NatGateway"
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - ZOCTANKNATEIP
+          - AllocationId
+      SubnetId: !Ref PublicSubnetAZOCTANK
+      Tags:
+        - Key: Name
+          Value: ZOCTANK-NATGW
+
+  ZOCTANKNATInternetRouteAttach:
+    Type: AWS::EC2::Route
+    DependsOn: ZOCTANKInternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref ZOCTANKNATGateway
+      RouteTableId: !Ref AttachSubnetRouteTableZOCTANK
+
+  ZOCTANKNATInternetRoutePrivate:
+    Type: AWS::EC2::Route
+    DependsOn: ZOCTANKInternetGateway
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref ZOCTANKNATGateway
+      RouteTableId: !Ref PrivateSubnetRouteTableZOCTANK
 Outputs:
   # ZOCTANK Outputs
   VPCZOCTANK:
