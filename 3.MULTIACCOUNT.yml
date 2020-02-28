@@ -363,7 +363,7 @@ Resources:
     DependsOn: ZOCTANKInternetGateway
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref ITOCTANKInternetGateway
+      GatewayId: !Ref ZOCTANKInternetGateway
       RouteTableId: !Ref PublicSubnetRouteTableZOCTANK
 
 # Creat ZOCTANK NAT GateWay
@@ -443,7 +443,7 @@ Outputs:
     Export:
       Name: ZOCTANK-PrivateSubnetB 
   PrivateSubnetRouteTableZOCTANK:
-    Description: "ITOCTANK Private Route Table"
+    Description: "ZOCTANK Private Route Table"
     Value: !Ref PrivateSubnetRouteTableZOCTANK
     Export:
       Name: ZOCTANK-Private-Route-Table
