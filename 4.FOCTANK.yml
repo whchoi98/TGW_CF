@@ -339,6 +339,19 @@ Resources:
         - Ref: AttachSubnetBFOCTANK
       SecurityGroupIds: 
         - Ref: EndpointSecGroupFOCTANK
+  # Create OCTANK Transit Gateway
+  TransitGateway:
+    Type: "AWS::EC2::TransitGateway"
+    Properties:
+      AmazonSideAsn: 65000
+      Description: "TGW Route Integration Test"
+      AutoAcceptSharedAttachments: "enable"
+      DefaultRouteTableAssociation: "disable"
+      DnsSupport: "enable"
+      VpnEcmpSupport: "enable"
+      Tags:
+        - Key: Name
+          Value: FCTANK-TGW
 
 Outputs:
   # FOCTANK Outputs
