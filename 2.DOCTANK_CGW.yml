@@ -18,7 +18,7 @@ Parameters:
 
   KeyPair:
     Description: "Keypair to access the CSR"
-    : "AWS::EC2::KeyPair::KeyName"
+    Type: "AWS::EC2::KeyPair::KeyName"
     Default: "whchoi02"
  
   RouterChoice: 

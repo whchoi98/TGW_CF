@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "This is the data center automation configuration of the OCTANK virtual company. 2AZs, 10.101.0.0/8"
+Description: "This is the data center automation configuration of the OCTANK virtual company. 2AZs, 10.102.0.0/8"
 
 Metadata:
   "AWS::CloudFormation::Interface":
@@ -58,135 +58,135 @@ Parameters:
 #    'eu-west-1':
 #      AMI: "ami-07eaa7bc8ad97f43c"
 
-# FOCTANK Resources
+# IOCTANK Resources
 
 Resources:
 
-# Create VPCFOCTANK
+# Create VPCIOCTANK
 
-  VPCFOCTANK:
+  VPCIOCTANK:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: "10.101.0.0/16"
+      CidrBlock: "10.102.0.0/16"
       EnableDnsSupport: "true"
       EnableDnsHostnames: "true"
       InstanceTenancy: default
       Tags:
         - Key: Name
-          Value: FOCTANK
+          Value: IOCTANK
         - Key: project
           Value: OCTANK
 
-# Create VPCFOCTANK-PublicSubnet A
+# Create VPCIOCTANK-PublicSubnet A
 
-  PublicSubnetAFOCTANK:
+  PublicSubnetAIOCTANK:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPCFOCTANK
-      CidrBlock: "10.101.0.0/22"
+      VpcId: !Ref VPCIOCTANK
+      CidrBlock: "10.102.0.0/22"
       AvailabilityZone: !Ref AvailabilityZoneA
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: FOCTANK-Pub-A Subnet
+          Value: IOCTANK-Pub-A Subnet
 
-# Create VPCFOCTANK-PublicSubnet B
+# Create VPCIOCTANK-PublicSubnet B
 
-  PublicSubnetBFOCTANK:
+  PublicSubnetBIOCTANK:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPCFOCTANK
-      CidrBlock: "10.101.4.0/22"
+      VpcId: !Ref VPCIOCTANK
+      CidrBlock: "10.102.4.0/22"
       AvailabilityZone: !Ref AvailabilityZoneB
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: FOCTANK-Pub-B Subnet
+          Value: IOCTANK-Pub-B Subnet
 
-# Create VPCFOCTANK-Public Route Table
+# Create VPCIOCTANK-Public Route Table
 
-  PublicSubnetRouteTableFOCTANK:
+  PublicSubnetRouteTableIOCTANK:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref VPCFOCTANK
+      VpcId: !Ref VPCIOCTANK
       Tags:
         - Key: Name
-          Value: FOCTANK-Public RT
+          Value: IOCTANK-Public RT
 
-# Public A Subnet Accsociate VPCFOCTANK-Public Route Table
+# Public A Subnet Accsociate VPCIOCTANK-Public Route Table
 
-  PublicASubnetRouteTableAssociationFOCTANK:
+  PublicASubnetRouteTableAssociationIOCTANK:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PublicSubnetRouteTableFOCTANK
-      SubnetId: !Ref PublicSubnetAFOCTANK
+      RouteTableId: !Ref PublicSubnetRouteTableIOCTANK
+      SubnetId: !Ref PublicSubnetAIOCTANK
 
-# Public B Subnet Accsociate VPCFOCTANK-Public Route Table
+# Public B Subnet Accsociate VPCIOCTANK-Public Route Table
 
-  PublicBSubnetRouteTableAssociationFOCTANK:
+  PublicBSubnetRouteTableAssociationIOCTANK:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PublicSubnetRouteTableFOCTANK
-      SubnetId: !Ref PublicSubnetBFOCTANK
+      RouteTableId: !Ref PublicSubnetRouteTableIOCTANK
+      SubnetId: !Ref PublicSubnetBIOCTANK
 
-# Create VPCFOCTANK-PrivateSubnet A
+# Create VPCIOCTANK-PrivateSubnet A
 
-  PrivateSubnetAFOCTANK:
+  PrivateSubnetAIOCTANK:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPCFOCTANK
-      CidrBlock: "10.101.8.0/21"
+      VpcId: !Ref VPCIOCTANK
+      CidrBlock: "10.102.8.0/21"
       AvailabilityZone: !Ref AvailabilityZoneA
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: FOCTANK-Priv-A Subnet
+          Value: IOCTANK-Priv-A Subnet
 
-# Create VPCFOCTANK-PrivateSubnet B
+# Create VPCIOCTANK-PrivateSubnet B
 
-  PrivateSubnetBFOCTANK:
+  PrivateSubnetBIOCTANK:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPCFOCTANK
-      CidrBlock: "10.101.16.0/21"
+      VpcId: !Ref VPCIOCTANK
+      CidrBlock: "10.102.16.0/21"
       AvailabilityZone: !Ref AvailabilityZoneB
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: FOCTANK-Priv-B Subnet
+          Value: IOCTANK-Priv-B Subnet
 
-# Create VPCFOCTANK-Private Route Table
+# Create VPCIOCTANK-Private Route Table
 
-  PrivateSubnetRouteTableFOCTANK:
+  PrivateSubnetRouteTableIOCTANK:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref VPCFOCTANK
+      VpcId: !Ref VPCIOCTANK
       Tags:
         - Key: Name
-          Value: FOCTANK-Private RT
+          Value: IOCTANK-Private RT
 
-# Private A Subnet Accsociate VPC-FOCTANK-Private Route Table
+# Private A Subnet Accsociate VPC-IOCTANK-Private Route Table
 
-  PrivateASubnetRouteTableAssociationFOCTANK:
+  PrivateASubnetRouteTableAssociationIOCTANK:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateSubnetRouteTableFOCTANK
-      SubnetId: !Ref PrivateSubnetAFOCTANK
+      RouteTableId: !Ref PrivateSubnetRouteTableIOCTANK
+      SubnetId: !Ref PrivateSubnetAIOCTANK
 
-# Private B Subnet Accsociate VPCFOCTANK-Private Route Table
+# Private B Subnet Accsociate VPCIOCTANK-Private Route Table
 
-  PrivateBSubnetRouteTableAssociationFOCTANK:
+  PrivateBSubnetRouteTableAssociationIOCTANK:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateSubnetRouteTableFOCTANK
-      SubnetId: !Ref PrivateSubnetBFOCTANK
+      RouteTableId: !Ref PrivateSubnetRouteTableIOCTANK
+      SubnetId: !Ref PrivateSubnetBIOCTANK
 
-# VPC FOCTANK ServerRole
+# VPC IOCTANK ServerRole
 
-  ServerRoleFOCTANK:
+  ServerRoleIOCTANK:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: FOCTANK-SSMRole
+      RoleName: IOCTANK-SSMRole
       Path: "/"
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
@@ -200,21 +200,21 @@ Resources:
             Action:
               - sts:AssumeRole
 
-  InstanceProfileFOCTANK:
+  InstanceProfileIOCTANK:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: "/"
       Roles: 
-        - !Ref ServerRoleFOCTANK
+        - !Ref ServerRoleIOCTANK
 
-# VPCFOCTANK Security Group - ICMP , SSH Permit 
+# VPCIOCTANK Security Group - ICMP , SSH Permit 
 
-  FOCTANKEc2SecGroup:
+  IOCTANKEc2SecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Open-up ports for ICMP and SSH from 10.x.x.x
-      GroupName: FOCTANK-SG
-      VpcId: !Ref VPCFOCTANK
+      GroupName: IOCTANK-SG
+      VpcId: !Ref VPCIOCTANK
       SecurityGroupIngress:
         - IpProtocol: icmp
           CidrIp: 0.0.0.0/0
@@ -226,84 +226,84 @@ Resources:
           ToPort: "22"
       Tags:
         - Key: Name
-          Value: FOCTANK-SG
+          Value: IOCTANK-SG
           
-  # Create FOCTANK IGW
+  # Create IOCTANK IGW
 
-  FOCTANKInternetGateway:
+  IOCTANKInternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
         - Key: Name
-          Value: FOCTANK-IGW
+          Value: IOCTANK-IGW
 
   AttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId: !Ref VPCFOCTANK
-      InternetGatewayId: !Ref FOCTANKInternetGateway
+      VpcId: !Ref VPCIOCTANK
+      InternetGatewayId: !Ref IOCTANKInternetGateway
 
-  FOCTANKDirectInternetRoute:
+  IOCTANKDirectInternetRoute:
     Type: AWS::EC2::Route
-    DependsOn: FOCTANKInternetGateway
+    DependsOn: IOCTANKInternetGateway
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref FOCTANKInternetGateway
-      RouteTableId: !Ref PublicSubnetRouteTableFOCTANK
+      GatewayId: !Ref IOCTANKInternetGateway
+      RouteTableId: !Ref PublicSubnetRouteTableIOCTANK
 
-# Creat FOCTANK NAT GateWay
+# Creat IOCTANK NAT GateWay
 
-  FOCTANKNATEIP:
+  IOCTANKNATEIP:
     Type: "AWS::EC2::EIP"
     Properties:
       Domain: vpc
 
-  FOCTANKNATGateway:
+  IOCTANKNATGateway:
     DependsOn: AttachGateway
     Type: "AWS::EC2::NatGateway"
     Properties:
       AllocationId:
         Fn::GetAtt:
-          - FOCTANKNATEIP
+          - IOCTANKNATEIP
           - AllocationId
-      SubnetId: !Ref PublicSubnetAFOCTANK
+      SubnetId: !Ref PublicSubnetAIOCTANK
       Tags:
         - Key: Name
-          Value: FOCTANK-NATGW
+          Value: IOCTANK-NATGW
 
-  FOCTANKNATInternetRouteAttach:
+  IOCTANKNATInternetRouteAttach:
     Type: AWS::EC2::Route
-    DependsOn: FOCTANKInternetGateway
+    DependsOn: IOCTANKInternetGateway
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref FOCTANKNATGateway
-      RouteTableId: !Ref AttachSubnetRouteTableFOCTANK
+      NatGatewayId: !Ref IOCTANKNATGateway
+      RouteTableId: !Ref AttachSubnetRouteTableIOCTANK
 
-  FOCTANKNATInternetRoutePrivate:
+  IOCTANKNATInternetRoutePrivate:
     Type: AWS::EC2::Route
-    DependsOn: FOCTANKInternetGateway
+    DependsOn: IOCTANKInternetGateway
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref FOCTANKNATGateway
-      RouteTableId: !Ref PrivateSubnetRouteTableFOCTANK
+      NatGatewayId: !Ref IOCTANKNATGateway
+      RouteTableId: !Ref PrivateSubnetRouteTableIOCTANK
 
-# VPCFOCTANK EC2 Create
+# VPCIOCTANK EC2 Create
 
-  ServerAEc2FOCTANK:
+  ServerAEc2IOCTANK:
     Type: AWS::EC2::Instance
-    DependsOn: PrivateSubnetAFOCTANK
+    DependsOn: PrivateSubnetAIOCTANK
     Properties:
-      SubnetId: !Ref PrivateSubnetAFOCTANK
+      SubnetId: !Ref PrivateSubnetAIOCTANK
 #     ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
       ImageId: !Ref LatestAmiId
-      PrivateIpAddress: 10.101.14.100
+      PrivateIpAddress: 10.102.14.100
       InstanceType: t3.small
       SecurityGroupIds: 
-        - Ref: FOCTANKEc2SecGroup
-      IamInstanceProfile: !Ref InstanceProfileFOCTANK
+        - Ref: IOCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileIOCTANK
       Tags:
         - Key: Name
-          Value: FOCTANK-Server-A
+          Value: IOCTANK-Server-A
       UserData:
         Fn::Base64:
           Fn::Sub: |
@@ -326,132 +326,131 @@ Resources:
             sudo -s
             cat hostfile >> /etc/hosts
             exit
-            
+              
+  ServerBEc2IOCTANK:
+    Type: AWS::EC2::Instance
+    DependsOn: PrivateSubnetBIOCTANK
+    Properties:
+      SubnetId: !Ref PrivateSubnetBIOCTANK
+#     ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      ImageId: !Ref LatestAmiId
+      PrivateIpAddress: 10.102.22.100
+      InstanceType: t3.small
+      SecurityGroupIds: 
+        - Ref: IOCTANKEc2SecGroup
+      IamInstanceProfile: !Ref InstanceProfileIOCTANK
+      Tags:
+        - Key: Name
+          Value: IOCTANK-Server-B
+      UserData:
+        Fn::Base64:
+          Fn::Sub: |
+            #!/bin/sh
+            sudo yum -y update
+            sudo yum -y install yum-utils 
+            sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+            sudo yum -y install iotop iperf3 iptraf tcpdump git bash-completion 
+            sudo yum -y install httpd php mysql php-mysql 
+            sudo yum -y install python-pip
+            sudo yum -y install nethogs iftop lnav nmon tmux wireshark
+            sudo systemctl start httpd
+            sudo systemctl enable httpd
+            cd /var/www/html/
+            sudo git clone https://github.com/whchoi98/ec2meta-webpage.git
+            sudo systemctl restart httpd
+            cd /home/ec2-user/
+            sudo git clone https://github.com/whchoi98/TGW_CF.git
+            cd /home/ec2-user/TGW_CF/
+            sudo -s
+            cat hostfile >> /etc/hosts
+            exit            
   
-  ServerBEc2FOCTANK:
-    Type: AWS::EC2::Instance
-    DependsOn: PrivateSubnetBFOCTANK
-    Properties:
-      SubnetId: !Ref PrivateSubnetBFOCTANK
-#     ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
-      ImageId: !Ref LatestAmiId
-      PrivateIpAddress: 10.101.22.100
-      InstanceType: t3.small
-      SecurityGroupIds: 
-        - Ref: FOCTANKEc2SecGroup
-      IamInstanceProfile: !Ref InstanceProfileFOCTANK
-      Tags:
-        - Key: Name
-          Value: FOCTANK-Server-B
-      UserData:
-        Fn::Base64:
-          Fn::Sub: |
-            #!/bin/sh
-            sudo yum -y update
-            sudo yum -y install yum-utils 
-            sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-            sudo yum -y install iotop iperf3 iptraf tcpdump git bash-completion 
-            sudo yum -y install httpd php mysql php-mysql 
-            sudo yum -y install python-pip
-            sudo yum -y install nethogs iftop lnav nmon tmux wireshark
-            sudo systemctl start httpd
-            sudo systemctl enable httpd
-            cd /var/www/html/
-            sudo git clone https://github.com/whchoi98/ec2meta-webpage.git
-            sudo systemctl restart httpd
-            cd /home/ec2-user/
-            sudo git clone https://github.com/whchoi98/TGW_CF.git
-            cd /home/ec2-user/TGW_CF/
-            sudo -s
-            cat hostfile >> /etc/hosts
-            exit
-    
-  AttachSubnetAFOCTANK:
+  AttachSubnetAIOCTANK:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPCFOCTANK
-      CidrBlock: "10.101.24.0/24"
+      VpcId: !Ref VPCIOCTANK
+      CidrBlock: "10.102.24.0/24"
       AvailabilityZone: !Ref AvailabilityZoneA
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: FOCTANK-Attach-A Subnet
+          Value: IOCTANK-Attach-A Subnet
 
-  AttachSubnetBFOCTANK:
+  AttachSubnetBIOCTANK:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPCFOCTANK
-      CidrBlock: "10.101.25.0/24"
+      VpcId: !Ref VPCIOCTANK
+      CidrBlock: "10.102.25.0/24"
       AvailabilityZone: !Ref AvailabilityZoneB
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: FOCTANK-Attach-B Subnet
+          Value: IOCTANK-Attach-B Subnet
 
-  AttachSubnetRouteTableFOCTANK:
+  AttachSubnetRouteTableIOCTANK:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref VPCFOCTANK
+      VpcId: !Ref VPCIOCTANK
       Tags:
         - Key: Name
-          Value: FOCTANK-Attach RT
+          Value: IOCTANK-Attach RT
 
-  AttachASubnetRouteTableAssociationFOCTANK:
+  AttachASubnetRouteTableAssociationIOCTANK:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref AttachSubnetRouteTableFOCTANK
-      SubnetId: !Ref AttachSubnetAFOCTANK
+      RouteTableId: !Ref AttachSubnetRouteTableIOCTANK
+      SubnetId: !Ref AttachSubnetAIOCTANK
 
-  AttachBSubnetRouteTableAssociationFOCTANK:
+  AttachBSubnetRouteTableAssociationIOCTANK:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref AttachSubnetRouteTableFOCTANK
-      SubnetId: !Ref AttachSubnetBFOCTANK
+      RouteTableId: !Ref AttachSubnetRouteTableIOCTANK
+      SubnetId: !Ref AttachSubnetBIOCTANK
 
-  EndpointSecGroupFOCTANK:
+  EndpointSecGroupIOCTANK:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Open-up ports for local VPC
-      GroupName: FOCTANK-EP-SG
-      VpcId: !Ref VPCFOCTANK
+      GroupName: IOCTANK-EP-SG
+      VpcId: !Ref VPCIOCTANK
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 10.101.0.0/16
+          CidrIp: 10.102.0.0/16
         - IpProtocol: udp
           FromPort: "1"
           ToPort: "65535"
-          CidrIp: 10.101.0.0/16
+          CidrIp: 10.102.0.0/16
       Tags:
         - Key: Name
-          Value: FOCTANK-EP-SG
+          Value: IOCTANK-EP-SG
 
-  SSMEndpointFOCTANK:
+  SSMEndpointIOCTANK:
     Type: AWS::EC2::VPCEndpoint
     Properties:
-      VpcId: !Ref VPCFOCTANK
+      VpcId: !Ref VPCIOCTANK
       ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
       VpcEndpointType: Interface
       PrivateDnsEnabled: True
       SubnetIds:
-        - Ref: AttachSubnetAFOCTANK
-        - Ref: AttachSubnetBFOCTANK
+        - Ref: AttachSubnetAIOCTANK
+        - Ref: AttachSubnetBIOCTANK
       SecurityGroupIds: 
-        - Ref: EndpointSecGroupFOCTANK
+        - Ref: EndpointSecGroupIOCTANK
 
-  SSMMEndpointFOCTANK:
+  SSMMEndpointIOCTANK:
     Type: AWS::EC2::VPCEndpoint
     Properties:
-      VpcId: !Ref VPCFOCTANK
+      VpcId: !Ref VPCIOCTANK
       ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
       VpcEndpointType: Interface
       PrivateDnsEnabled: True
       SubnetIds:
-        - Ref: AttachSubnetAFOCTANK
-        - Ref: AttachSubnetBFOCTANK
+        - Ref: AttachSubnetAIOCTANK
+        - Ref: AttachSubnetBIOCTANK
       SecurityGroupIds: 
-        - Ref: EndpointSecGroupFOCTANK
+        - Ref: EndpointSecGroupIOCTANK
 
   # Create OCTANK Transit Gateway
   TransitGateway:
@@ -465,62 +464,62 @@ Resources:
       VpnEcmpSupport: "enable"
       Tags:
         - Key: Name
-          Value: FOCTANK-TGW
+          Value: IOCTANK-TGW
 
 Outputs:
-  # FOCTANK Outputs
-  VPCFOCTANK:
+  # IOCTANK Outputs
+  VPCIOCTANK:
     Description: "The Created VPC"
-    Value: !Ref VPCFOCTANK
+    Value: !Ref VPCIOCTANK
     Export:
-      Name: FOCTANK-VPC
+      Name: IOCTANK-VPC
 
-  AttachSubnetAFOCTANK:
-    Description: "FOCTANK Attach Subnet A"
-    Value: !Ref AttachSubnetAFOCTANK
+  AttachSubnetAIOCTANK:
+    Description: "IOCTANK Attach Subnet A"
+    Value: !Ref AttachSubnetAIOCTANK
     Export:
-      Name: FOCTANK-AttachSubnetA
-  AttachSubnetBFOCTANK:
-    Description: "FOCTANK Attach Subnet B"
-    Value: !Ref AttachSubnetBFOCTANK
+      Name: IOCTANK-AttachSubnetA
+  AttachSubnetBIOCTANK:
+    Description: "IOCTANK Attach Subnet B"
+    Value: !Ref AttachSubnetBIOCTANK
     Export:
-      Name: FOCTANK-AttachSubnetB
+      Name: IOCTANK-AttachSubnetB
 
 
-  PublicSubnetAFOCTANK:
-    Description: "FOCTANK Public Subnet A"
-    Value: !Ref PublicSubnetAFOCTANK
+  PublicSubnetAIOCTANK:
+    Description: "IOCTANK Public Subnet A"
+    Value: !Ref PublicSubnetAIOCTANK
     Export:
-      Name: FOCTANK-PublicSubnetA
-  PublicSubnetBFOCTANK:
-    Description: "FOCTANK Public Subnet B"
-    Value: !Ref PublicSubnetBFOCTANK
+      Name: IOCTANK-PublicSubnetA
+  PublicSubnetBIOCTANK:
+    Description: "IOCTANK Public Subnet B"
+    Value: !Ref PublicSubnetBIOCTANK
     Export:
-      Name: FOCTANK-PublicSubnetB
+      Name: IOCTANK-PublicSubnetB
   
-  PrivateSubnetAFOCTANK:
-    Description: "FOCTANK Private Subnet A"
-    Value: !Ref PrivateSubnetAFOCTANK
+  PrivateSubnetAIOCTANK:
+    Description: "IOCTANK Private Subnet A"
+    Value: !Ref PrivateSubnetAIOCTANK
     Export:
-      Name: FOCTANK-PrivateSubnetA
-  PrivateSubnetBFOCTANK:
-    Description: "FOCTANK Private Subnet B"
-    Value: !Ref PrivateSubnetBFOCTANK
+      Name: IOCTANK-PrivateSubnetA
+  PrivateSubnetBIOCTANK:
+    Description: "IOCTANK Private Subnet B"
+    Value: !Ref PrivateSubnetBIOCTANK
     Export:
-      Name: FOCTANK-PrivateSubnetB 
-  PrivateSubnetRouteTableFOCTANK:
-    Description: "FOCTANK Private Route Table"
-    Value: !Ref PrivateSubnetRouteTableFOCTANK
+      Name: IOCTANK-PrivateSubnetB 
+  PrivateSubnetRouteTableIOCTANK:
+    Description: "IOCTANK Private Route Table"
+    Value: !Ref PrivateSubnetRouteTableIOCTANK
     Export:
-      Name: FOCTANK-Private-Route-Table
+      Name: IOCTANK-Private-Route-Table
 
-  ServerAFOCTANK:
-    Description: "FOCTANK EC2 A IP address"
-    Value: !GetAtt ServerAEc2FOCTANK.PrivateIp
+  ServerAIOCTANK:
+    Description: "IOCTANK EC2 A IP address"
+    Value: !GetAtt ServerAEc2IOCTANK.PrivateIp
     Export:
-      Name: FOCTANK-ServerAIP
-  ServerBFOCTANK:
-    Description: "FOCTANK EC2 B IP address"
-    Value: !GetAtt ServerBEc2FOCTANK.PrivateIp
+      Name: IOCTANK-ServerAIP
+  ServerBIOCTANK:
+    Description: "IOCTANK EC2 B IP address"
+    Value: !GetAtt ServerBEc2IOCTANK.PrivateIp
     Export:
-      Name: FOCTANK-ServerBIP
+      Name: IOCTANK-ServerBIP
