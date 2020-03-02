@@ -10,6 +10,8 @@ Metadata:
           - AvailabilityZoneA
           - AvailabilityZoneB
 
+# AZ Parameters
+
 Parameters:
   AvailabilityZoneA:
     Description: "Choose AZ1 for your VPC.- Default Region : ap-northeast-2"
@@ -26,18 +28,6 @@ Parameters:
   LatestAmiId:
     Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
-
-# AZ Parameters
-
-Parameters:
-  AvailabilityZoneA:
-    Description: "Choose AZ1 for your VPC.- Default Region : ap-northeast-2"
-    Type: AWS::EC2::AvailabilityZone::Name
-    Default: "ap-northeast-2"
-  AvailabilityZoneB:
-    Description: "Choose AZ2 for your VPC.- Default Region : ap-northeast-2"
-    Type: AWS::EC2::AvailabilityZone::Name
-    Default: "ap-northeast-2"
 
 # whchoi ec2 images
 
