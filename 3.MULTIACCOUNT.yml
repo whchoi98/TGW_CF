@@ -21,27 +21,34 @@ Parameters:
     Description: "Choose AZ2 for your VPC."
     Type: AWS::EC2::AvailabilityZone::Name
     Default: "ap-northeast-2"
+  KeyPair:
+    Description: "Keypair to access the EC2 Instance"
+    Type: "AWS::EC2::KeyPair::KeyName"
+    Default: "APR-2020-whchoi-home"
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
 
 # ec2 images
 
-Mappings:
-  RegionMap:
-    'ap-northeast-2':
-      AMI: "ami-07b13b6d061bf02b9"
-      SSM: "com.amazonaws.ap-northeast-2.ssm"
-      SSMM: "com.amazonaws.ap-northeast-2.ssmmessages"
-    'ap-northeast-1':
-      AMI: "ami-0a5e47e64180a50e4"
-      SSM: "com.amazonaws.ap-northeast-1.ssm"
-      SSMM: "com.amazonaws.ap-northeast-1.ssmmessages"
-    'us-east-1':
-      AMI: "ami-0ba97d2d221b828c8"
-      SSM: "com.amazonaws.us-east-1.ssm"
-      SSMM: "com.amazonaws.us-east-1.ssmmessages"
-    'eu-central-1':
-      AMI: "ami-08d3c6a9cdeb186b0"
-      SSM: "com.amazonaws.eu-central-1.ssm"
-      SSMM: "com.amazonaws.eu-central-1.ssmmessages"
+#Mappings:
+#  RegionMap:
+#    'ap-northeast-2':
+#      AMI: "ami-07b13b6d061bf02b9"
+#      SSM: "com.amazonaws.ap-northeast-2.ssm"
+#      SSMM: "com.amazonaws.ap-northeast-2.ssmmessages"
+#    'ap-northeast-1':
+#      AMI: "ami-0a5e47e64180a50e4"
+#      SSM: "com.amazonaws.ap-northeast-1.ssm"
+#      SSMM: "com.amazonaws.ap-northeast-1.ssmmessages"
+#    'us-east-1':
+#      AMI: "ami-0ba97d2d221b828c8"
+#      SSM: "com.amazonaws.us-east-1.ssm"
+#      SSMM: "com.amazonaws.us-east-1.ssmmessages"
+#    'eu-central-1':
+#      AMI: "ami-08d3c6a9cdeb186b0"
+#      SSM: "com.amazonaws.eu-central-1.ssm"
+#      SSMM: "com.amazonaws.eu-central-1.ssmmessages"
 
 # ZOCTANK Resources
 
@@ -232,7 +239,8 @@ Resources:
     DependsOn: PrivateSubnetAZOCTANK
     Properties:
       SubnetId: !Ref PrivateSubnetAZOCTANK
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+#     ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      ImageId: !Ref LatestAmiId
       PrivateIpAddress: 10.5.14.100
       InstanceType: t3.small
       SecurityGroupIds: 
@@ -241,13 +249,37 @@ Resources:
       Tags:
         - Key: Name
           Value: ZOCTANK-Server-A
-  
+      UserData:
+        Fn::Base64:
+          Fn::Sub: |
+            #!/bin/sh
+            sudo yum -y update
+            sudo yum -y install yum-utils 
+            sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+            sudo yum -y install iotop iperf3 iptraf tcpdump git bash-completion 
+            sudo yum -y install httpd php mysql php-mysql 
+            sudo yum -y install python-pip
+            sudo yum -y install nethogs iftop lnav nmon tmux wireshark
+            sudo systemctl start httpd
+            sudo systemctl enable httpd
+            cd /var/www/html/
+            sudo git clone https://github.com/whchoi98/ec2meta-webpage.git
+            sudo systemctl restart httpd
+            cd /home/ec2-user/
+            sudo git clone https://github.com/whchoi98/TGW_CF.git
+            cd /home/ec2-user/TGW_CF/
+            sudo -s
+            cat hostfile >> /etc/hosts
+            chmode 755 ./pingshell.sh
+            exit
+              
   ServerBEc2ZOCTANK:
     Type: AWS::EC2::Instance
     DependsOn: PrivateSubnetBZOCTANK
     Properties:
       SubnetId: !Ref PrivateSubnetBZOCTANK
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+#     ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      ImageId: !Ref LatestAmiId
       PrivateIpAddress: 10.5.22.100
       InstanceType: t3.small
       SecurityGroupIds: 
@@ -256,7 +288,30 @@ Resources:
       Tags:
         - Key: Name
           Value: ZOCTANK-Server-B
-
+      UserData:
+        Fn::Base64:
+          Fn::Sub: |
+            #!/bin/sh
+            sudo yum -y update
+            sudo yum -y install yum-utils 
+            sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+            sudo yum -y install iotop iperf3 iptraf tcpdump git bash-completion 
+            sudo yum -y install httpd php mysql php-mysql 
+            sudo yum -y install python-pip
+            sudo yum -y install nethogs iftop lnav nmon tmux wireshark
+            sudo systemctl start httpd
+            sudo systemctl enable httpd
+            cd /var/www/html/
+            sudo git clone https://github.com/whchoi98/ec2meta-webpage.git
+            sudo systemctl restart httpd
+            cd /home/ec2-user/
+            sudo git clone https://github.com/whchoi98/TGW_CF.git
+            cd /home/ec2-user/TGW_CF/
+            sudo -s
+            cat hostfile >> /etc/hosts
+            chmode 755 ./pingshell.sh
+            exit
+            
   AttachSubnetAZOCTANK:
     Type: AWS::EC2::Subnet
     Properties:

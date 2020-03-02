@@ -22,7 +22,7 @@ Parameters:
     Type: AWS::EC2::AvailabilityZone::Name
     Default: "ap-northeast-2"
   KeyPair:
-    Description: "Keypair to access the CSR"
+    Description: "Keypair to access the EC2 Instances"
     Type: "AWS::EC2::KeyPair::KeyName"
     Default: "APR-2020-whchoi-home"
   LatestAmiId:
@@ -325,8 +325,9 @@ Resources:
             cd /home/ec2-user/TGW_CF/
             sudo -s
             cat hostfile >> /etc/hosts
+            chmode 755 ./pingshell.sh
             exit
-              
+
   ServerBEc2IOCTANK:
     Type: AWS::EC2::Instance
     DependsOn: PrivateSubnetBIOCTANK
@@ -363,6 +364,7 @@ Resources:
             cd /home/ec2-user/TGW_CF/
             sudo -s
             cat hostfile >> /etc/hosts
+            chmode 755 ./pingshell.sh
             exit            
   
   AttachSubnetAIOCTANK:

@@ -19,6 +19,13 @@ Parameters:
     Description: "Choose AZ2 for your VPC.- Default Region : ap-northeast-2"
     Type: AWS::EC2::AvailabilityZone::Name
     Default: "ap-northeast-2"
+  KeyPair:
+    Description: "Keypair to access the EC2 Instance"
+    Type: "AWS::EC2::KeyPair::KeyName"
+    Default: "APR-2020-whchoi-home"
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
 
 # AZ Parameters
 
@@ -48,18 +55,18 @@ Parameters:
 #      AMI: "ami-07eaa7bc8ad97f43c"
 
 # whchoi02 account img
-Mappings:
-  RegionMap:
-    'ap-northeast-2':
-      AMI: "ami-07eb3b622d65b3282"
-    'ap-northeast-1':
-      AMI: "ami-0d0b31f9a31b06baf"
-    'us-east-1':
-      AMI: "ami-0175605caef730e00"
-    'eu-central-1':
-      AMI: "ami-049bfdd9d1aab5776"
-    'eu-west-1':
-      AMI: "ami-07eaa7bc8ad97f43c"
+#Mappings:
+#  RegionMap:
+#    'ap-northeast-2':
+#      AMI: "ami-07eb3b622d65b3282"
+#    'ap-northeast-1':
+#      AMI: "ami-0d0b31f9a31b06baf"
+#    'us-east-1':
+#      AMI: "ami-0175605caef730e00"
+#    'eu-central-1':
+#      AMI: "ami-049bfdd9d1aab5776"
+#    'eu-west-1':
+#      AMI: "ami-07eaa7bc8ad97f43c"
 
 Resources:
 
@@ -236,7 +243,8 @@ Resources:
     Properties:
       SubnetId:
         Ref: PrivateSubnetACOCTANK
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+#     ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      ImageId: !Ref LatestAmiId
       PrivateIpAddress: 10.21.14.100
       InstanceType: t3.small
       SecurityGroupIds:
@@ -245,14 +253,38 @@ Resources:
       Tags:
         - Key: Name
           Value: COCTANK-Server-A
-
+      UserData:
+        Fn::Base64:
+          Fn::Sub: |
+            #!/bin/sh
+            sudo yum -y update
+            sudo yum -y install yum-utils 
+            sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+            sudo yum -y install iotop iperf3 iptraf tcpdump git bash-completion 
+            sudo yum -y install httpd php mysql php-mysql 
+            sudo yum -y install python-pip
+            sudo yum -y install nethogs iftop lnav nmon tmux wireshark
+            sudo systemctl start httpd
+            sudo systemctl enable httpd
+            cd /var/www/html/
+            sudo git clone https://github.com/whchoi98/ec2meta-webpage.git
+            sudo systemctl restart httpd
+            cd /home/ec2-user/
+            sudo git clone https://github.com/whchoi98/TGW_CF.git
+            cd /home/ec2-user/TGW_CF/
+            sudo -s
+            cat hostfile >> /etc/hosts
+            chmode 755 ./pingshell.sh
+            exit
+            
   ServerBEc2COCTANK:
     Type: AWS::EC2::Instance
     DependsOn: PrivateSubnetBCOCTANK
     Properties:
       SubnetId:
         Ref: PrivateSubnetBCOCTANK
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+#     ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AMI]
+      ImageId: !Ref LatestAmiId
       PrivateIpAddress: 10.21.22.100
       InstanceType: t3.small
       SecurityGroupIds:
@@ -261,7 +293,30 @@ Resources:
       Tags:
         - Key: Name
           Value: COCTANK-Server-B
-
+      UserData:
+        Fn::Base64:
+          Fn::Sub: |
+            #!/bin/sh
+            sudo yum -y update
+            sudo yum -y install yum-utils 
+            sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+            sudo yum -y install iotop iperf3 iptraf tcpdump git bash-completion 
+            sudo yum -y install httpd php mysql php-mysql 
+            sudo yum -y install python-pip
+            sudo yum -y install nethogs iftop lnav nmon tmux wireshark
+            sudo systemctl start httpd
+            sudo systemctl enable httpd
+            cd /var/www/html/
+            sudo git clone https://github.com/whchoi98/ec2meta-webpage.git
+            sudo systemctl restart httpd
+            cd /home/ec2-user/
+            sudo git clone https://github.com/whchoi98/TGW_CF.git
+            cd /home/ec2-user/TGW_CF/
+            sudo -s
+            cat hostfile >> /etc/hosts
+            chmode 755 ./pingshell.sh
+            exit
+            
   AttachSubnetACOCTANK:
     Type: AWS::EC2::Subnet
     Properties:
