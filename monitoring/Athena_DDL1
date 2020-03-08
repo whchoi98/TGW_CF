@@ -1,0 +1,21 @@
+CREATE EXTERNAL TABLE IF NOT EXISTS default.vpc_flow_logs (
+  version int,
+  account string,
+  interfaceid string,
+  sourceaddress string,
+  destinationaddress string,
+  sourceport int,
+  destinationport int,
+  protocol int,
+  numpackets int,
+  numbytes bigint,
+  starttime int,
+  endtime int,
+  action string,
+  logstatus string
+)  
+PARTITIONED BY (dt string)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ' '
+LOCATION 's3://{your_log_bucket}/AWSLogs/{account_id}/vpcflowlogs/us-east-1/'
+TBLPROPERTIES ("skip.header.line.count"="1");

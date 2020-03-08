@@ -1,0 +1,1 @@
+[version, account, eni, source="10.0.0.155", destination, srcport, destport="22", protocol="6", packets, bytes, windowstart, windowend, action="REJECT", flowlogstatus]
