@@ -265,6 +265,7 @@ Resources:
       PrivateIpAddress: 10.0.14.100
       SecurityGroupIds:
         - Ref: ITOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair  
       IamInstanceProfile: !Ref InstanceProfileITOCTANK
       Tags:
         - Key: Name
@@ -304,6 +305,7 @@ Resources:
       PrivateIpAddress: 10.0.22.100
       SecurityGroupIds:
         - Ref: ITOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileITOCTANK
       Tags:
         - Key: Name
@@ -342,6 +344,7 @@ Resources:
       InstanceType: t3.small
       SecurityGroupIds:
         - Ref: ITOCTANKEc2BastionSecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileITOCTANK
       Tags:
         - Key: Name

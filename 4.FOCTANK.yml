@@ -300,6 +300,7 @@ Resources:
       InstanceType: t3.small
       SecurityGroupIds: 
         - Ref: FOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileFOCTANK
       Tags:
         - Key: Name
@@ -340,6 +341,7 @@ Resources:
       InstanceType: t3.small
       SecurityGroupIds: 
         - Ref: FOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileFOCTANK
       Tags:
         - Key: Name

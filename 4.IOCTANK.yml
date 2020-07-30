@@ -300,6 +300,7 @@ Resources:
       InstanceType: t3.small
       SecurityGroupIds: 
         - Ref: IOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileIOCTANK
       Tags:
         - Key: Name
@@ -339,6 +340,7 @@ Resources:
       InstanceType: t3.small
       SecurityGroupIds: 
         - Ref: IOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileIOCTANK
       Tags:
         - Key: Name

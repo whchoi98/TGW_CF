@@ -236,6 +236,7 @@ Resources:
       PrivateIpAddress: 10.1.8.100
       SecurityGroupIds:
         - Ref: DOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileDOCTANK
       Tags:
         - Key: Name
@@ -252,6 +253,7 @@ Resources:
       PrivateIpAddress: 10.1.16.100
       SecurityGroupIds:
         - Ref: DOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileDOCTANK
       Tags:
         - Key: Name

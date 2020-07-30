@@ -244,6 +244,7 @@ Resources:
       InstanceType: t3.small
       SecurityGroupIds:
         - Ref: BOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileBOCTANK
       Tags:
         - Key: Name
@@ -283,6 +284,7 @@ Resources:
       PrivateIpAddress: 10.12.22.100
       SecurityGroupIds:
         - Ref: BOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileBOCTANK
       Tags:
         - Key: Name

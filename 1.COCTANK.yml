@@ -239,6 +239,7 @@ Resources:
       InstanceType: t3.small
       SecurityGroupIds:
         - Ref: COCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileCOCTANK
       Tags:
         - Key: Name
@@ -279,6 +280,7 @@ Resources:
       InstanceType: t3.small
       SecurityGroupIds:
         - Ref: COCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileCOCTANK
       Tags:
         - Key: Name

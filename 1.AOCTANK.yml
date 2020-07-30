@@ -241,6 +241,7 @@ Resources:
       InstanceType: t3.small
       SecurityGroupIds: 
         - Ref: AOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileAOCTANK
       Tags:
         - Key: Name
@@ -281,6 +282,7 @@ Resources:
       InstanceType: t3.small
       SecurityGroupIds: 
         - Ref: AOCTANKEc2SecGroup
+      KeyName: !Ref KeyPair
       IamInstanceProfile: !Ref InstanceProfileAOCTANK
       Tags:
         - Key: Name
